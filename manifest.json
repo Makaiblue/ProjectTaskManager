@@ -1,0 +1,12 @@
+{
+  "name": "Project Task Manager",
+  "short_name": "TaskManager",
+  "description": "Gerencie suas tarefas e interaja com a IA de forma prática e moderna.",
+  "start_url": "./index.html",
+  "scope": "./",
+  "display": "standalone",
+  "background_color": "#ffffff",
+  "theme_color": "#2b5fff",
+  "orientation": "portrait-primary",
+  "prefer_related_applications": false
+}
