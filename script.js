@@ -221,7 +221,6 @@ const taskSection = document.getElementById("task-section");
 const logoutBtn = document.getElementById("logout-btn");
 const userEmail = document.getElementById("user-email");
 
-const form = document.getElementById('task-form');
 const taskList = document.getElementById('task-list');
 const clearAllBtn = document.getElementById('clear-all');
 const iaToggle = document.getElementById('ia-toggle');
