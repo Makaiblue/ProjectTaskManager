@@ -1,3 +1,4 @@
+document.addEventListener("DOMContentLoaded", () => {
 // ====================================================
 // VARIABLES AND ELEMENT REFERENCES
 // ====================================================
@@ -285,3 +286,7 @@ function generateIaResponse(question) {
 
   addMessage(response);
 }
+
+// ✅ Chamada final — carrega as tarefas ao abrir o app
+renderTasks();
+});
