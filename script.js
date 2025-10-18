@@ -11,6 +11,16 @@ document.addEventListener("DOMContentLoaded", () => {
   const iaChat = document.getElementById('ia-chat');
   const iaForm = document.getElementById('ia-form');
   const iaInput = document.getElementById('ia-input');
+const showRegister = document.getElementById("show-register");
+if (showRegister) {
+  showRegister.addEventListener("click", (e) => {
+    e.preventDefault();
+    loginForm.classList.add("hidden");
+    registerForm.classList.remove("hidden");
+    showRegister.classList.add("hidden");
+    showLogin.classList.remove("hidden");
+  });
+}
 
   const loginForm = document.getElementById("login-form");
   const registerForm = document.getElementById("register-form");
