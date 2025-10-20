@@ -1,4 +1,6 @@
-/* ======== BASE ======== */
+/* =============================
+   GLOBAL SETTINGS
+============================= */
 * {
   box-sizing: border-box;
   margin: 0;
@@ -7,158 +9,40 @@
 }
 
 body {
-  background: linear-gradient(135deg, #E0F7FA, #DBEAFE);
-  color: #1E293B;
+  background: linear-gradient(135deg, #06B6D4, #2563EB);
   display: flex;
   justify-content: center;
-  align-items: flex-start;
-  padding: 20px;
-  min-height: 100vh;
-}
-
-/* ======== CONTAINER ======== */
-.container {
-  background: #ffffff;
-  border-radius: 12px;
-  padding: 25px;
-  width: 100%;
-  max-width: 480px;
-  box-shadow: 0 6px 18px rgba(0, 0, 0, 0.1);
-}
-
-/* ======== HEADER ======== */
-header {
-  display: flex;
-  justify-content: space-between;
   align-items: center;
-  margin-bottom: 15px;
+  min-height: 100vh;
+  color: #333;
 }
 
-header h1 {
-  font-size: 1.4em;
-  color: #1e3a8a;
+/* =============================
+   CONTAINERS
+============================= */
+.container {
+  background: #ffffffee;
+  border-radius: 16px;
+  padding: 30px 25px;
+  width: 100%;
+  max-width: 500px;
+  box-shadow: 0 8px 20px rgba(0,0,0,0.2);
 }
 
-/* ======== FORM ELEMENTS ======== */
-form {
-  display: flex;
-  flex-direction: column;
-  gap: 10px;
-  margin-bottom: 20px;
-}
-
-input, textarea, button {
-  padding: 10px;
-  border-radius: 8px;
-  border: 1px solid #cbd5e1;
-}
-
-input:focus, textarea:focus {
-  outline: none;
-  border-color: #2563EB;
-  box-shadow: 0 0 0 2px rgba(37,99,235,0.2);
-}
-
-/* ======== BUTTONS ======== */
-button {
-  background: linear-gradient(90deg, #06B6D4, #2563EB);
-  color: white;
-  font-weight: 600;
-  cursor: pointer;
-  border: none;
-  transition: 0.3s;
-}
-
-button:hover {
-  background: linear-gradient(90deg, #0891b2, #1e40af);
-}
-
-/* ======== TASK LIST ======== */
-ul {
-  list-style: none;
-}
-
-li {
-  background: #E0F2FE;
-  margin-bottom: 10px;
-  padding: 12px;
-  border-radius: 8px;
-  border-left: 5px solid #2563EB;
-  position: relative;
-  transition: 0.2s;
-}
-
-li:hover {
-  transform: translateX(3px);
-}
-
-li.completed {
-  opacity: 0.7;
-  text-decoration: line-through;
-}
-
-/* ======== ACTION BUTTONS ======== */
-.task-actions button {
-  background: #0ea5e9;
-  color: white;
-  border: none;
-  margin-right: 5px;
-  padding: 5px 8px;
-  border-radius: 6px;
-  cursor: pointer;
-  font-size: 0.9em;
-}
-
-.task-actions button:hover {
-  background: #0284c7;
-}
-
-.remove-btn {
-  background: #ef4444;
-}
-.remove-btn:hover {
-  background: #dc2626;
-}
-
-/* ======== AI PANEL ======== */
-#ia-panel {
-  background: #F0F9FF;
-  border: 1px solid #93C5FD;
-  border-radius: 12px;
-  padding: 15px;
-  margin-top: 20px;
-}
-
-#ia-chat {
-  max-height: 200px;
-  overflow-y: auto;
-  margin-bottom: 10px;
-}
-
-.ia-msg {
-  background: #E0F2FE;
-  padding: 8px 12px;
-  border-radius: 10px;
-  margin-bottom: 5px;
-}
-
-.ia-msg.user {
-  background: linear-gradient(90deg, #06B6D4, #2563EB);
-  color: white;
-  align-self: flex-end;
-}
-
-/* ======== HEADER (LOGO) ======== */
-.app-header {
+/* =============================
+   HEADERS
+============================= */
+header {
   display: flex;
   align-items: center;
   justify-content: center;
   gap: 12px;
-  background: linear-gradient(90deg, #06B6D4, #2563EB);
-  color: white;
-  padding: 16px;
-  border-radius: 0 0 12px 12px;
-  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.15);
+  margin-bottom: 20px;
+}
+
+header h1 {
+  font-size: 1.5rem;
+  color: #0ea5e9;
 }
 
 .app-logo {
@@ -166,40 +50,176 @@ li.completed {
   height: 48px;
 }
 
-/* ======== FOOTER & DASHBOARD ======== */
-.dashboard-footer {
-  margin-top: 2rem;
-  text-align: center;
-  color: #475569;
-  font-size: 0.9em;
+/* =============================
+   FORMS
+============================= */
+form {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
 }
 
-/* Buttons for dashboard and AI */
-.ai-btn {
-  background: linear-gradient(90deg, #06B6D4, #2563EB);
+input, textarea, button {
+  padding: 12px;
+  border-radius: 8px;
+  border: 1px solid #ccc;
+  font-size: 1rem;
+}
+
+input:focus, textarea:focus {
+  outline: none;
+  border-color: #0ea5e9;
+  box-shadow: 0 0 6px rgba(14, 165, 233, 0.5);
+}
+
+button {
+  background-color: #0ea5e9;
   color: white;
-  border: none;
-  padding: 10px 16px;
-  border-radius: 10px;
   cursor: pointer;
-  margin: 10px 0;
+  border: none;
+  font-weight: bold;
   transition: 0.3s;
 }
-.ai-btn:hover {
-  background: linear-gradient(90deg, #0891b2, #1e40af);
+
+button:hover {
+  background-color: #0284c7;
 }
 
-/* Logout repositioning */
+/* =============================
+   LOGIN / REGISTER LINKS
+============================= */
+.auth-links {
+  display: flex;
+  justify-content: center;
+  gap: 10px;
+  margin-top: 10px;
+  font-size: 0.95rem;
+}
+
+.auth-links a {
+  color: #0ea5e9;
+  text-decoration: none;
+  font-weight: bold;
+}
+
+.auth-links a:hover {
+  text-decoration: underline;
+}
+
+/* =============================
+   TASKS LIST
+============================= */
+ul {
+  list-style: none;
+  margin-top: 15px;
+}
+
+li {
+  background: #e0f2fe;
+  margin-bottom: 10px;
+  padding: 14px;
+  border-radius: 10px;
+  position: relative;
+  display: flex;
+  flex-direction: column;
+}
+
+li.completed {
+  opacity: 0.7;
+  text-decoration: line-through;
+}
+
+/* TASK BUTTONS */
+.task-actions {
+  display: flex;
+  gap: 8px;
+  margin-top: 8px;
+}
+
+.task-actions button {
+  flex: 1;
+  padding: 6px;
+  font-size: 0.9rem;
+  border-radius: 6px;
+  border: none;
+  cursor: pointer;
+  transition: 0.2s;
+}
+
+.complete-btn { background: #22c55e; color: white; }
+.edit-btn { background: #fbbf24; color: white; }
+.remove-btn { background: #ef4444; color: white; }
+
+.complete-btn:hover { background: #16a34a; }
+.edit-btn:hover { background: #f59e0b; }
+.remove-btn:hover { background: #dc2626; }
+
+/* =============================
+   IA PANEL
+============================= */
+#ia-panel {
+  background: #ffffff;
+  border: 2px solid #0ea5e9;
+  border-radius: 16px;
+  padding: 12px;
+  margin-top: 15px;
+  display: none;
+}
+
+.ia-msg {
+  background: #e0f2fe;
+  padding: 10px 14px;
+  border-radius: 12px;
+  margin-bottom: 6px;
+  max-width: 80%;
+}
+
+.ia-msg.user {
+  background: #0ea5e9;
+  color: white;
+  margin-left: auto;
+}
+
+/* IA INPUT */
+#ia-form {
+  display: flex;
+  gap: 8px;
+  margin-top: 8px;
+}
+
+#ia-input {
+  flex: 1;
+  border-radius: 8px;
+  border: 1px solid #ccc;
+  padding: 10px;
+}
+
+/* =============================
+   DASHBOARD HEADER
+============================= */
+.dashboard-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  background: linear-gradient(135deg, #0ea5e9, #2563eb);
+  color: white;
+  padding: 12px 16px;
+  border-radius: 12px;
+  margin-bottom: 15px;
+  box-shadow: 0 4px 12px rgba(0,0,0,0.2);
+}
+
 .logout-btn {
   background: #ef4444;
+  padding: 8px 14px;
+  border-radius: 8px;
   border: none;
   color: white;
-  padding: 10px 18px;
-  border-radius: 8px;
   font-weight: bold;
   cursor: pointer;
-  transition: background 0.3s;
+  transition: 0.3s;
 }
+
 .logout-btn:hover {
   background: #dc2626;
 }
