@@ -251,52 +251,94 @@ document.addEventListener("DOMContentLoaded", () => {
       .catch(err => console.error(err));
   }
 
-  // ====================================================
-  // AI ASSISTANT
-  // ====================================================
-  iaToggle?.addEventListener('click', () => iaPanel?.classList.remove('hidden'));
-  closeIa?.addEventListener('click', () => iaPanel?.classList.add('hidden'));
+// -----------------------------
+// AI ASSISTANT (ENGLISH VERSION)
+// -----------------------------
+iaToggle?.addEventListener("click", () => iaPanel?.classList.remove("hidden"));
+closeIa?.addEventListener("click", () => iaPanel?.classList.add("hidden"));
 
-  if (iaForm) {
-    iaForm.addEventListener('submit', (e) => {
-      e.preventDefault();
-      const question = iaInput?.value.trim();
-      if (!question) return;
-      addMessage(question, 'user');
-      iaInput.value = '';
-      setTimeout(() => generateIaResponse(question), 500);
-    });
-  }
+if (iaForm) {
+  iaForm.addEventListener("submit", (e) => {
+    e.preventDefault();
+    const question = iaInput?.value.trim();
+    if (!question) return;
+    addMessage(question, "user");
+    iaInput.value = "";
+    setTimeout(() => generateIaResponse(question), 600);
+  });
+}
 
-  function addMessage(text, sender = 'ia') {
-    const msg = document.createElement('div');
-    msg.classList.add('ia-msg');
-    if (sender === 'user') msg.classList.add('user');
-    msg.textContent = text;
-    iaChat?.appendChild(msg);
-    iaChat.scrollTop = iaChat.scrollHeight;
-  }
+function addMessage(text, sender = "ia") {
+  const msg = document.createElement("div");
+  msg.classList.add("ia-msg", sender);
+  msg.textContent = text;
+  iaChat?.appendChild(msg);
+  iaChat.scrollTop = iaChat.scrollHeight;
+}
 
-  function generateIaResponse(question) {
-    const lower = question.toLowerCase();
-    let response = "Sorry, I didn’t quite get that. Could you rephrase?";
-    const pending = tasks.filter(t => !t.completed);
-    const expired = tasks.filter(t => new Date(t.datetime) < new Date());
-    const soon = tasks.filter(t => {
+function generateIaResponse(question) {
+  const lower = question.toLowerCase();
+  const pending = tasks.filter((t) => !t.completed);
+  const completed = tasks.filter((t) => t.completed);
+  const overdue = tasks.filter(
+    (t) => new Date(t.datetime) < new Date() && !t.completed
+  );
+
+  let response = "";
+
+  if (/(hello|hi|hey)/i.test(lower)) {
+    const greetings = [
+      "Hey there 👋 How’s your day going?",
+      "Hello! Ready to organize your tasks?",
+      "Hi! Let’s make some progress today 🚀",
+    ];
+    response = greetings[Math.floor(Math.random() * greetings.length)];
+  } else if (/(pending|incomplete)/i.test(lower)) {
+    response = pending.length
+      ? `You have ${pending.length} pending task${
+          pending.length === 1 ? "" : "s"
+        }. Need help with them?`
+      : "No pending tasks — nice job! 🎉";
+  } else if (/(completed|done|finished)/i.test(lower)) {
+    response = completed.length
+      ? `You’ve completed ${completed.length} task${
+          completed.length === 1 ? "" : "s"
+        }. Keep it up 💪`
+      : "You haven’t completed any tasks yet — let’s start small!";
+  } else if (/(overdue|late|missed)/i.test(lower)) {
+    response = overdue.length
+      ? `⚠️ You have ${overdue.length} overdue task${
+          overdue.length === 1 ? "" : "s"
+        }. Want to see them?`
+      : "No overdue tasks. Great time management ⏰";
+  } else if (/(today|now)/i.test(lower)) {
+    const todayTasks = tasks.filter((t) => {
       const diff = new Date(t.datetime) - new Date();
       return diff > 0 && diff < 86400000;
     });
-
-    if (lower.includes('urgent') || lower.includes('priority')) {
-      response = `You have ${soon.length} tasks close to their deadlines.`;
-    } else if (lower.includes('summary') || lower.includes('tasks')) {
-      response = `Currently, you have ${pending.length} pending and ${expired.length} overdue tasks.`;
-    } else if (lower.includes('today')) {
-      response = soon.length > 0 ? `Your tasks for today are:\n${soon.map(t => `• ${t.title}`).join('\n')}` : 'No tasks scheduled for today 🎉';
-    } else if (lower.includes('all')) {
-      response = pending.length > 0 ? `Here are your pending tasks:\n${pending.map(t => `• ${t.title}`).join('\n')}` : 'You have no pending tasks 🎯';
-    }
-
-    addMessage(response);
+    response = todayTasks.length
+      ? `Here’s what’s due today: ${todayTasks
+          .map((t) => "• " + t.title)
+          .join(", ")}`
+      : "No tasks for today — enjoy your day 🌞";
+  } else if (/(motivation|quote|inspire)/i.test(lower)) {
+    const quotes = [
+      "💡 “Discipline beats motivation — every single day.”",
+      "🔥 “Dream big. Start small. Act now.”",
+      "🌱 “Each task done is a seed of success planted.”",
+    ];
+    response = quotes[Math.floor(Math.random() * quotes.length)];
+  } else if (/(add|create) task/i.test(lower)) {
+    response =
+      "Sure! Just type the task title and click ‘Add Task’. You can also use the quick add button ➕";
+  } else {
+    const fallback = [
+      "Hmm, I’m not sure I understood. Could you rephrase?",
+      "Sorry, can you clarify that for me?",
+      "I didn’t quite get that — do you mean your task list?",
+    ];
+    response = fallback[Math.floor(Math.random() * fallback.length)];
   }
-});
+
+  addMessage(response);
+}
