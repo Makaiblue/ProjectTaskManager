@@ -1,3 +1,4 @@
+/* ======== BASE ======== */
 * {
   box-sizing: border-box;
   margin: 0;
@@ -6,8 +7,8 @@
 }
 
 body {
-  background: #f1f5f9;
-  color: #333;
+  background: linear-gradient(135deg, #E0F7FA, #DBEAFE);
+  color: #1E293B;
   display: flex;
   justify-content: center;
   align-items: flex-start;
@@ -15,15 +16,17 @@ body {
   min-height: 100vh;
 }
 
+/* ======== CONTAINER ======== */
 .container {
-  background: #fff;
-  border-radius: 8px;
+  background: #ffffff;
+  border-radius: 12px;
   padding: 25px;
   width: 100%;
   max-width: 480px;
-  box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+  box-shadow: 0 6px 18px rgba(0, 0, 0, 0.1);
 }
 
+/* ======== HEADER ======== */
 header {
   display: flex;
   justify-content: space-between;
@@ -32,17 +35,11 @@ header {
 }
 
 header h1 {
-  font-size: 1.3em;
+  font-size: 1.4em;
+  color: #1e3a8a;
 }
 
-#user-info {
-  font-size: 0.9em;
-}
-
-.hidden {
-  display: none;
-}
-
+/* ======== FORM ELEMENTS ======== */
 form {
   display: flex;
   flex-direction: column;
@@ -52,32 +49,47 @@ form {
 
 input, textarea, button {
   padding: 10px;
-  border-radius: 5px;
-  border: 1px solid #ccc;
+  border-radius: 8px;
+  border: 1px solid #cbd5e1;
 }
 
+input:focus, textarea:focus {
+  outline: none;
+  border-color: #2563EB;
+  box-shadow: 0 0 0 2px rgba(37,99,235,0.2);
+}
+
+/* ======== BUTTONS ======== */
 button {
-  background-color: #4f46e5;
+  background: linear-gradient(90deg, #06B6D4, #2563EB);
   color: white;
+  font-weight: 600;
   cursor: pointer;
   border: none;
-  transition: 0.2s;
+  transition: 0.3s;
 }
 
 button:hover {
-  background-color: #4338ca;
+  background: linear-gradient(90deg, #0891b2, #1e40af);
 }
 
+/* ======== TASK LIST ======== */
 ul {
   list-style: none;
 }
 
 li {
-  background: #e2e8f0;
+  background: #E0F2FE;
   margin-bottom: 10px;
   padding: 12px;
-  border-radius: 5px;
+  border-radius: 8px;
+  border-left: 5px solid #2563EB;
   position: relative;
+  transition: 0.2s;
+}
+
+li:hover {
+  transform: translateX(3px);
 }
 
 li.completed {
@@ -85,30 +97,36 @@ li.completed {
   text-decoration: line-through;
 }
 
-.ta {
-  margin-top: 5px;
-}
-
+/* ======== ACTION BUTTONS ======== */
 .task-actions button {
-  background: #64748b;
+  background: #0ea5e9;
   color: white;
   border: none;
   margin-right: 5px;
   padding: 5px 8px;
-  border-radius: 3px;
+  border-radius: 6px;
   cursor: pointer;
+  font-size: 0.9em;
+}
+
+.task-actions button:hover {
+  background: #0284c7;
 }
 
 .remove-btn {
   background: #ef4444;
 }
+.remove-btn:hover {
+  background: #dc2626;
+}
 
+/* ======== AI PANEL ======== */
 #ia-panel {
-  background: #f8fafc;
-  border: 1px solid #cbd5e1;
-  border-radius: 8px;
-  padding: 10px;
-  margin-top: 10px;
+  background: #F0F9FF;
+  border: 1px solid #93C5FD;
+  border-radius: 12px;
+  padding: 15px;
+  margin-top: 20px;
 }
 
 #ia-chat {
@@ -118,51 +136,47 @@ li.completed {
 }
 
 .ia-msg {
-  background: #e2e8f0;
-  padding: 8px;
-  border-radius: 5px;
+  background: #E0F2FE;
+  padding: 8px 12px;
+  border-radius: 10px;
   margin-bottom: 5px;
 }
 
 .ia-msg.user {
-  background: #c7d2fe;
+  background: linear-gradient(90deg, #06B6D4, #2563EB);
+  color: white;
   align-self: flex-end;
 }
 
-/* Dashboard */
-.dashboard-header {
+/* ======== HEADER (LOGO) ======== */
+.app-header {
   display: flex;
-  justify-content: space-between;
   align-items: center;
-  background: linear-gradient(135deg, #4facfe, #00f2fe);
+  justify-content: center;
+  gap: 12px;
+  background: linear-gradient(90deg, #06B6D4, #2563EB);
   color: white;
-  padding: 1rem 2rem;
-  border-radius: 12px;
-  box-shadow: 0 2px 10px rgba(0,0,0,0.2);
-  margin-bottom: 1rem;
+  padding: 16px;
+  border-radius: 0 0 12px 12px;
+  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.15);
 }
 
+.app-logo {
+  width: 48px;
+  height: 48px;
+}
+
+/* ======== FOOTER & DASHBOARD ======== */
 .dashboard-footer {
   margin-top: 2rem;
   text-align: center;
+  color: #475569;
+  font-size: 0.9em;
 }
 
-.logout-btn {
-  background: #ff5e57;
-  border: none;
-  color: white;
-  padding: 10px 18px;
-  border-radius: 8px;
-  font-weight: bold;
-  cursor: pointer;
-  transition: background 0.3s;
-}
-.logout-btn:hover {
-  background: #ff3b30;
-}
-
+/* Buttons for dashboard and AI */
 .ai-btn {
-  background: #007aff;
+  background: linear-gradient(90deg, #06B6D4, #2563EB);
   color: white;
   border: none;
   padding: 10px 16px;
@@ -172,18 +186,20 @@ li.completed {
   transition: 0.3s;
 }
 .ai-btn:hover {
-  background: #005fcc;
+  background: linear-gradient(90deg, #0891b2, #1e40af);
 }
 
-.ia-msg {
-  background: #f0f0f0;
-  padding: 8px 12px;
-  margin: 6px;
-  border-radius: 10px;
-  max-width: 80%;
-}
-.ia-msg.user {
-  background: #007aff;
+/* Logout repositioning */
+.logout-btn {
+  background: #ef4444;
+  border: none;
   color: white;
-  margin-left: auto;
+  padding: 10px 18px;
+  border-radius: 8px;
+  font-weight: bold;
+  cursor: pointer;
+  transition: background 0.3s;
+}
+.logout-btn:hover {
+  background: #dc2626;
 }
