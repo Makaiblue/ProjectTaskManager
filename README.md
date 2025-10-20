@@ -116,3 +116,7 @@ The project was built step by step:
   - Authentication (Email/Password)
   - Firestore Database enabled
 - Modern browser supporting ES modules
+
+---
+ ## Credits
+Marcos David Garcia Lima
