@@ -10,3 +10,10 @@
   "orientation": "portrait-primary",
   "prefer_related_applications": false
 }
+"icons": [
+  {
+    "src": "logo.svg",
+    "sizes": "512x512",
+    "type": "image/svg+xml"
+  }
+]
