@@ -1,4 +1,4 @@
-// script.js
+
 import { initializeApp } from "https://www.gstatic.com/firebasejs/11.0.1/firebase-app.js";
 import { getAuth, createUserWithEmailAndPassword, signInWithEmailAndPassword, signOut, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/11.0.1/firebase-auth.js";
 import { getFirestore, doc, setDoc, getDoc } from "https://www.gstatic.com/firebasejs/11.0.1/firebase-firestore.js";
@@ -48,10 +48,9 @@ document.addEventListener("DOMContentLoaded", () => {
   const db = getFirestore(app);
 
   // ====================================================
-  // AUTHENTICATION
-  // ====================================================
-  showRegister.addEventListener("click", e => {
+  // AUTHENTICATIONshowRegister.addEventListener("click", e => {
     e.preventDefault();
+  // ====================================================
     loginForm.classList.add("hidden");
     registerForm.classList.remove("hidden");
     showRegister.classList.add("hidden");
@@ -63,7 +62,8 @@ document.addEventListener("DOMContentLoaded", () => {
     loginForm.classList.remove("hidden");
     registerForm.classList.add("hidden");
     showRegister.classList.remove("hidden");
-    showLogin.classList.add("hidden");
+    showLogin.classList.add("hidden");showRegister.addEventListener("click", e => {
+    e.preventDefault();
   });
 
   registerForm.addEventListener("submit", async e => {
@@ -108,7 +108,8 @@ document.addEventListener("DOMContentLoaded", () => {
   });
 
   onAuthStateChanged(auth, user => {
-    if (user) {
+    if (user) {showRegister.addEventListener("click", e => {
+    e.preventDefault();
       authSection.classList.add("hidden");
       taskSection.classList.remove("hidden");
       userEmailElem.textContent = user.email;
@@ -149,7 +150,8 @@ document.addEventListener("DOMContentLoaded", () => {
   async function loadTasks() {
     const user = auth.currentUser;
     if (!user) return;
-    const docSnap = await getDoc(doc(db, "users", user.uid));
+    const docSnap = await getDoc(doc(db, "users", user.uid));showRegister.addEventListener("click", e => {
+    e.preventDefault();
     if (docSnap.exists()) {
       tasks = docSnap.data().tasks || [];
       renderTasks();
