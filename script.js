@@ -1,28 +1,34 @@
+// script.js
+import { initializeApp } from "https://www.gstatic.com/firebasejs/11.0.1/firebase-app.js";
+import { getAuth, createUserWithEmailAndPassword, signInWithEmailAndPassword, signOut, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/11.0.1/firebase-auth.js";
+import { getFirestore, doc, setDoc, getDoc } from "https://www.gstatic.com/firebasejs/11.0.1/firebase-firestore.js";
+
 document.addEventListener("DOMContentLoaded", () => {
   // ====================================================
-  // VARIABLES AND ELEMENT REFERENCES
+  // VARIABLES
   // ====================================================
   const loginForm = document.getElementById("login-form");
   const registerForm = document.getElementById("register-form");
-  const showRegisterBtn = document.getElementById("show-register");
-  const showLoginBtn = document.getElementById("show-login");
+  const showRegister = document.getElementById("show-register");
+  const showLogin = document.getElementById("show-login");
   const authSection = document.getElementById("auth-section");
-  const dashboardSection = document.getElementById("dashboard-section");
+  const taskSection = document.getElementById("task-section");
   const logoutBtn = document.getElementById("logout-btn");
-  const userEmailDisplay = document.getElementById("user-email");
+  const userEmailElem = document.getElementById("user-email");
+  const authMessage = document.getElementById("auth-message");
 
-  const taskForm = document.getElementById("task-form");
-  const taskList = document.getElementById("task-list");
-  const clearAllBtn = document.getElementById("clear-all");
+  const form = document.getElementById('task-form');
+  const taskList = document.getElementById('task-list');
+  const clearAllBtn = document.getElementById('clear-all');
 
-  const iaToggle = document.getElementById("ia-toggle");
-  const iaPanel = document.getElementById("ia-panel");
-  const closeIa = document.getElementById("close-ia");
-  const iaChat = document.getElementById("ia-chat");
-  const iaForm = document.getElementById("ia-form");
-  const iaInput = document.getElementById("ia-input");
+  const iaToggle = document.getElementById('ia-toggle');
+  const iaPanel = document.getElementById('ia-panel');
+  const closeIa = document.getElementById('close-ia');
+  const iaChat = document.getElementById('ia-chat');
+  const iaForm = document.getElementById('ia-form');
+  const iaInput = document.getElementById('ia-input');
 
-  let tasks = JSON.parse(localStorage.getItem("tasks")) || [];
+  let tasks = [];
 
   // ====================================================
   // FIREBASE CONFIG
@@ -37,80 +43,80 @@ document.addEventListener("DOMContentLoaded", () => {
     measurementId: "G-XPQS6YQCCS"
   };
 
-  // Initialize Firebase
-  const app = firebase.initializeApp(firebaseConfig);
-  const auth = firebase.auth();
-  const db = firebase.firestore();
+  const app = initializeApp(firebaseConfig);
+  const auth = getAuth(app);
+  const db = getFirestore(app);
 
   // ====================================================
   // AUTHENTICATION
   // ====================================================
-  if (showRegisterBtn) {
-    showRegisterBtn.addEventListener("click", (e) => {
-      e.preventDefault();
-      loginForm.classList.add("hidden");
-      registerForm.classList.remove("hidden");
-      showLoginBtn.classList.remove("hidden");
-    });
-  }
+  showRegister.addEventListener("click", e => {
+    e.preventDefault();
+    loginForm.classList.add("hidden");
+    registerForm.classList.remove("hidden");
+    showRegister.classList.add("hidden");
+    showLogin.classList.remove("hidden");
+  });
 
-  if (showLoginBtn) {
-    showLoginBtn.addEventListener("click", (e) => {
-      e.preventDefault();
-      loginForm.classList.remove("hidden");
-      registerForm.classList.add("hidden");
-      showRegisterBtn.classList.remove("hidden");
-      showLoginBtn.classList.add("hidden");
-    });
-  }
+  showLogin.addEventListener("click", e => {
+    e.preventDefault();
+    loginForm.classList.remove("hidden");
+    registerForm.classList.add("hidden");
+    showRegister.classList.remove("hidden");
+    showLogin.classList.add("hidden");
+  });
 
-  if (registerForm) {
-    registerForm.addEventListener("submit", (e) => {
-      e.preventDefault();
-      const email = document.getElementById("reg-email").value;
-      const password = document.getElementById("reg-password").value;
+  registerForm.addEventListener("submit", async e => {
+    e.preventDefault();
+    const email = document.getElementById("reg-email").value.trim();
+    const password = document.getElementById("reg-password").value.trim();
 
-      auth.createUserWithEmailAndPassword(email, password)
-        .then(() => {
-          alert("✅ Account created successfully!");
-          registerForm.reset();
-          registerForm.classList.add("hidden");
-          loginForm.classList.remove("hidden");
-          showRegisterBtn.classList.remove("hidden");
-          showLoginBtn.classList.add("hidden");
-        })
-        .catch(err => alert(`⚠️ ${err.message}`));
-    });
-  }
+    try {
+      await createUserWithEmailAndPassword(auth, email, password);
+      authMessage.textContent = "✅ Account created successfully! Redirecting...";
+      authMessage.style.color = "green";
+      registerForm.reset();
+      setTimeout(() => {
+        loginForm.classList.remove("hidden");
+        registerForm.classList.add("hidden");
+        showRegister.classList.remove("hidden");
+        showLogin.classList.add("hidden");
+        authMessage.textContent = "";
+      }, 1500);
+    } catch (err) {
+      authMessage.textContent = `❌ Error: ${err.message}`;
+      authMessage.style.color = "red";
+    }
+  });
 
-  if (loginForm) {
-    loginForm.addEventListener("submit", (e) => {
-      e.preventDefault();
-      const email = document.getElementById("email").value;
-      const password = document.getElementById("password").value;
+  loginForm.addEventListener("submit", async e => {
+    e.preventDefault();
+    const email = document.getElementById("email").value.trim();
+    const password = document.getElementById("password").value.trim();
 
-      auth.signInWithEmailAndPassword(email, password)
-        .then(() => loginForm.reset())
-        .catch(err => alert(`⚠️ ${err.message}`));
-    });
-  }
+    try {
+      await signInWithEmailAndPassword(auth, email, password);
+      loginForm.reset();
+    } catch (err) {
+      authMessage.textContent = `❌ Error: ${err.message}`;
+      authMessage.style.color = "red";
+    }
+  });
 
-  if (logoutBtn) {
-    logoutBtn.addEventListener("click", () => auth.signOut());
-  }
+  logoutBtn.addEventListener("click", () => {
+    signOut(auth);
+  });
 
-  auth.onAuthStateChanged((user) => {
+  onAuthStateChanged(auth, user => {
     if (user) {
       authSection.classList.add("hidden");
-      dashboardSection.classList.remove("hidden");
-      logoutBtn.classList.remove("hidden");
-      userEmailDisplay.textContent = user.email;
-      loadTasksFromFirestore();
+      taskSection.classList.remove("hidden");
+      userEmailElem.textContent = user.email;
+      loadTasks();
     } else {
       authSection.classList.remove("hidden");
-      dashboardSection.classList.add("hidden");
-      logoutBtn.classList.add("hidden");
-      userEmailDisplay.textContent = "";
+      taskSection.classList.add("hidden");
+      userEmailElem.textContent = "";
       tasks = [];
       renderTasks();
     }
@@ -119,172 +125,143 @@ document.addEventListener("DOMContentLoaded", () => {
   // ====================================================
   // TASK MANAGEMENT
   // ====================================================
-  if (taskForm) {
-    taskForm.addEventListener("submit", (e) => {
-      e.preventDefault();
-      const title = document.getElementById("title").value.trim();
-      const description = document.getElementById("description").value.trim();
-      const datetime = document.getElementById("datetime").value;
+  form.addEventListener('submit', e => {
+    e.preventDefault();
+    const title = document.getElementById('title').value.trim();
+    const description = document.getElementById('description').value.trim();
+    const datetime = document.getElementById('datetime').value;
 
-      if (!title || !datetime) return;
+    if (!title || !datetime) return;
 
-      const task = { id: Date.now(), title, description, datetime, completed: false };
-      tasks.push(task);
-      saveTasks();
-      renderTasks();
-      taskForm.reset();
-    });
-  }
+    const task = { id: Date.now(), title, description, datetime, completed: false };
+    tasks.push(task);
+    saveTasks();
+    renderTasks();
+    form.reset();
+  });
 
   function saveTasks() {
-    localStorage.setItem("tasks", JSON.stringify(tasks));
-    saveTasksToFirestore();
+    const user = auth.currentUser;
+    if (!user) return;
+    setDoc(doc(db, "users", user.uid), { tasks }).catch(err => console.error(err));
+  }
+
+  async function loadTasks() {
+    const user = auth.currentUser;
+    if (!user) return;
+    const docSnap = await getDoc(doc(db, "users", user.uid));
+    if (docSnap.exists()) {
+      tasks = docSnap.data().tasks || [];
+      renderTasks();
+    }
   }
 
   function renderTasks() {
     if (!taskList) return;
-    taskList.innerHTML = "";
-    tasks.sort((a, b) => new Date(a.datetime) - new Date(b.datetime));
-    tasks.forEach(addTaskToDOM);
-  }
-
-  function addTaskToDOM(task) {
-    if (!taskList) return;
-    const li = document.createElement("li");
-    if (task.completed) li.classList.add("completed");
-    const remaining = getTimeRemaining(task.datetime);
-    li.innerHTML = `
-      <strong>${task.title}</strong>
-      ${task.description ? `<span>${task.description}</span>` : ""}
-      <span class="time-remaining">⏰ ${new Date(task.datetime).toLocaleString()} (${remaining})</span>
-      <div class="task-actions">
-        <button class="complete-btn" onclick="toggleComplete(${task.id})">${task.completed ? "↩️ Undo" : "✅ Complete"}</button>
-        <button class="edit-btn" onclick="editTask(${task.id})">✏️ Edit</button>
-        <button class="remove-btn" onclick="removeTask(${task.id})">🗑️ Remove</button>
-      </div>
-    `;
-    taskList.appendChild(li);
+    taskList.innerHTML = '';
+    tasks.sort((a,b)=> new Date(a.datetime) - new Date(b.datetime));
+    tasks.forEach(task => {
+      const li = document.createElement('li');
+      li.classList.toggle('completed', task.completed);
+      const remaining = getTimeRemaining(task.datetime);
+      li.innerHTML = `
+        <strong>${task.title}</strong>
+        ${task.description ? `<span>${task.description}</span>` : ''}
+        <span class="time-remaining">⏰ ${new Date(task.datetime).toLocaleString()} (${remaining})</span>
+        <div class="task-actions">
+          <button onclick="toggleComplete(${task.id})">${task.completed ? '↩️ Undo' : '✅ Complete'}</button>
+          <button onclick="editTask(${task.id})">✏️ Edit</button>
+          <button onclick="removeTask(${task.id})">🗑️ Remove</button>
+        </div>
+      `;
+      taskList.appendChild(li);
+    });
   }
 
   function getTimeRemaining(datetime) {
-    const now = new Date();
-    const target = new Date(datetime);
-    const diff = target - now;
-    if (diff <= 0) return "Expired";
-    const hours = Math.floor(diff / (1000 * 60 * 60));
-    const mins = Math.floor((diff % (1000 * 60 * 60)) / (1000 * 60));
-    return `${hours}h ${mins}m remaining`;
+    const diff = new Date(datetime) - new Date();
+    if(diff <= 0) return "Expired";
+    const h = Math.floor(diff / 3600000);
+    const m = Math.floor((diff % 3600000)/60000);
+    return `${h}h ${m}m remaining`;
   }
 
-  window.toggleComplete = function(id) {
-    const task = tasks.find(t => t.id === id);
-    if (!task) return;
+  window.toggleComplete = id => {
+    const task = tasks.find(t=>t.id===id);
+    if(!task) return;
     task.completed = !task.completed;
     saveTasks();
     renderTasks();
   }
 
-  window.editTask = function(id) {
-    const task = tasks.find(t => t.id === id);
-    if (!task) return;
+  window.editTask = id => {
+    const task = tasks.find(t=>t.id===id);
+    if(!task) return;
     const newTitle = prompt("Edit title:", task.title);
     const newDesc = prompt("Edit description:", task.description);
-    if (newTitle !== null) task.title = newTitle;
-    if (newDesc !== null) task.description = newDesc;
+    if(newTitle!==null) task.title=newTitle;
+    if(newDesc!==null) task.description=newDesc;
     saveTasks();
     renderTasks();
   }
 
-  window.removeTask = function(id) {
-    tasks = tasks.filter(t => t.id !== id);
+  window.removeTask = id => {
+    tasks = tasks.filter(t=>t.id!==id);
     saveTasks();
     renderTasks();
   }
 
-  if (clearAllBtn) {
-    clearAllBtn.addEventListener("click", () => {
-      if (confirm("Are you sure you want to delete all tasks?")) {
-        tasks = [];
-        saveTasks();
-        renderTasks();
-      }
-    });
-  }
+  clearAllBtn.addEventListener('click', () => {
+    if(confirm("Are you sure you want to delete all tasks?")) {
+      tasks = [];
+      saveTasks();
+      renderTasks();
+    }
+  });
 
   // ====================================================
-  // FIRESTORE SYNC
+  // AI ASSISTANT
   // ====================================================
-  function saveTasksToFirestore() {
-    const user = auth.currentUser;
-    if (!user) return;
-    db.collection("users").doc(user.uid).set({ tasks })
-      .then(() => console.log("💾 Tasks synced"))
-      .catch(err => console.error(err));
-  }
+  iaToggle.addEventListener('click', () => iaPanel.classList.remove('hidden'));
+  closeIa.addEventListener('click', () => iaPanel.classList.add('hidden'));
 
-  function loadTasksFromFirestore() {
-    const user = auth.currentUser;
-    if (!user) return;
-    db.collection("users").doc(user.uid).get()
-      .then(doc => {
-        if (doc.exists && doc.data().tasks) {
-          tasks = doc.data().tasks;
-          renderTasks();
-        }
-      })
-      .catch(err => console.error(err));
-  }
+  iaForm.addEventListener('submit', e => {
+    e.preventDefault();
+    const question = iaInput.value.trim();
+    if(!question) return;
+    addMessage(question, 'user');
+    iaInput.value = '';
+    setTimeout(()=>generateIaResponse(question), 500);
+  });
 
-  // ====================================================
-  // AI ASSISTANT (ENGLISH, interactive)
-  // ====================================================
-  if (iaToggle) iaToggle.addEventListener("click", () => iaPanel?.classList.remove("hidden"));
-  if (closeIa) closeIa.addEventListener("click", () => iaPanel?.classList.add("hidden"));
-
-  if (iaForm) {
-    iaForm.addEventListener("submit", (e) => {
-      e.preventDefault();
-      const question = iaInput?.value.trim();
-      if (!question) return;
-      addMessage(question, "user");
-      iaInput.value = "";
-
-      setTimeout(() => generateIaResponse(question), 500);
-    });
-  }
-
-  function addMessage(text, sender = "ia") {
-    if (!iaChat) return;
-    const msg = document.createElement("div");
-    msg.classList.add("ia-msg");
-    if (sender === "user") msg.classList.add("user");
-    msg.textContent = text;
+  function addMessage(text, sender='ia') {
+    if(!iaChat) return;
+    const msg = document.createElement('div');
+    msg.classList.add('ia-msg');
+    if(sender==='user') msg.classList.add('user');
+    msg.textContent=text;
     iaChat.appendChild(msg);
     iaChat.scrollTop = iaChat.scrollHeight;
   }
 
   function generateIaResponse(question) {
     const lower = question.toLowerCase();
-    let response = "I'm here to help! Could you provide more details?";
-    const pending = tasks.filter(t => !t.completed);
-    const expired = tasks.filter(t => new Date(t.datetime) < new Date());
-    const soon = tasks.filter(t => {
-      const diff = new Date(t.datetime) - new Date();
-      return diff > 0 && diff < 86400000;
+    let response = "Sorry, I didn’t quite get that. Try asking about tasks, deadlines, or priorities!";
+    const pending = tasks.filter(t=>!t.completed);
+    const expired = tasks.filter(t=>new Date(t.datetime)<new Date());
+    const soon = tasks.filter(t=>{
+      const diff = new Date(t.datetime)-new Date();
+      return diff>0 && diff<86400000;
     });
 
-    if (lower.includes("urgent") || lower.includes("priority")) {
-      response = `You have ${soon.length} tasks approaching their deadlines.`;
-    } else if (lower.includes("summary") || lower.includes("tasks")) {
-      response = `You currently have ${pending.length} pending tasks and ${expired.length} overdue tasks.`;
-    } else if (lower.includes("today")) {
-      response = soon.length > 0
-        ? `Tasks for today:\n${soon.map(t => `• ${t.title}`).join("\n")}`
-        : "No tasks scheduled for today 🎉";
-    } else if (lower.includes("all")) {
-      response = pending.length > 0
-        ? `Here are your pending tasks:\n${pending.map(t => `• ${t.title}`).join("\n")}`
-        : "You have no pending tasks 🎯";
+    if(lower.includes("urgent") || lower.includes("priority")) {
+      response = `You have ${soon.length} tasks close to their deadlines.`;
+    } else if(lower.includes("summary") || lower.includes("tasks")) {
+      response = `You currently have ${pending.length} pending and ${expired.length} overdue tasks.`;
+    } else if(lower.includes("today")) {
+      response = soon.length>0 ? `Today's tasks:\n${soon.map(t=>`• ${t.title}`).join("\n")}` : "No tasks scheduled for today 🎉";
+    } else if(lower.includes("all")) {
+      response = pending.length>0 ? `Pending tasks:\n${pending.map(t=>`• ${t.title}`).join("\n")}` : "You have no pending tasks 🎯";
     }
 
     addMessage(response);
