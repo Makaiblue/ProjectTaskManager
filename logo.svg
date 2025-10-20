@@ -1,0 +1,18 @@
+<!-- logo.svg — Chat + Clipboard -->
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64" width="128" height="128" role="img" aria-label="Chat + Tasks">
+  <defs>
+    <linearGradient id="gradC" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0%" stop-color="#06B6D4"/>
+      <stop offset="100%" stop-color="#2563EB"/>
+    </linearGradient>
+  </defs>
+  <rect width="64" height="64" rx="12" ry="12" fill="url(#gradC)"/>
+  <g fill="none" stroke="#fff" stroke-width="3" stroke-linecap="round" stroke-linejoin="round">
+    <!-- Balão de chat -->
+    <path d="M12 16h28a8 8 0 0 1 8 8v10a8 8 0 0 1-8 8H20l-8 6v-6H12a8 8 0 0 1-8-8V24a8 8 0 0 1 8-8z" opacity="0.9"/>
+    <!-- Linhas representando lista -->
+    <line x1="20" y1="24" x2="36" y2="24"/>
+    <line x1="20" y1="30" x2="36" y2="30"/>
+    <line x1="20" y1="36" x2="30" y2="36"/>
+  </g>
+</svg>
