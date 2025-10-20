@@ -128,3 +128,62 @@ li.completed {
   background: #c7d2fe;
   align-self: flex-end;
 }
+
+/* Dashboard */
+.dashboard-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  background: linear-gradient(135deg, #4facfe, #00f2fe);
+  color: white;
+  padding: 1rem 2rem;
+  border-radius: 12px;
+  box-shadow: 0 2px 10px rgba(0,0,0,0.2);
+  margin-bottom: 1rem;
+}
+
+.dashboard-footer {
+  margin-top: 2rem;
+  text-align: center;
+}
+
+.logout-btn {
+  background: #ff5e57;
+  border: none;
+  color: white;
+  padding: 10px 18px;
+  border-radius: 8px;
+  font-weight: bold;
+  cursor: pointer;
+  transition: background 0.3s;
+}
+.logout-btn:hover {
+  background: #ff3b30;
+}
+
+.ai-btn {
+  background: #007aff;
+  color: white;
+  border: none;
+  padding: 10px 16px;
+  border-radius: 10px;
+  cursor: pointer;
+  margin: 10px 0;
+  transition: 0.3s;
+}
+.ai-btn:hover {
+  background: #005fcc;
+}
+
+.ia-msg {
+  background: #f0f0f0;
+  padding: 8px 12px;
+  margin: 6px;
+  border-radius: 10px;
+  max-width: 80%;
+}
+.ia-msg.user {
+  background: #007aff;
+  color: white;
+  margin-left: auto;
+}
