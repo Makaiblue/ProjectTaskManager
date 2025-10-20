@@ -1,255 +1,137 @@
-document.addEventListener("DOMContentLoaded", () => {
-  // ====================================================
-  // VARIABLES AND ELEMENT REFERENCES
-  // ====================================================
-  const form = document.getElementById('task-form');
-  const taskList = document.getElementById('task-list');
-  const clearAllBtn = document.getElementById('clear-all');
-  const iaToggle = document.getElementById('ia-toggle');
-  const iaPanel = document.getElementById('ia-panel');
-  const closeIa = document.getElementById('close-ia');
-  const iaChat = document.getElementById('ia-chat');
-  const iaForm = document.getElementById('ia-form');
-  const iaInput = document.getElementById('ia-input');
+// ====================================================
+// PROJECT TASK MANAGER - SCRIPT REVISED (v2.0)
+// ====================================================
 
-  const loginForm = document.getElementById("login-form");
-  const registerForm = document.getElementById("register-form");
-  const showRegister = document.getElementById("show-register");
-  const showLogin = document.getElementById("show-login");
-  const authSection = document.getElementById("auth-section");
-  const taskSection = document.getElementById("task-section");
-  const logoutBtn = document.getElementById("logout-btn");
-  const userEmail = document.getElementById("user-email");
+// -----------------------------
+// Firebase initialization
+// -----------------------------
+import { initializeApp } from "https://www.gstatic.com/firebasejs/11.0.1/firebase-app.js";
+import {
+  getAuth,
+  onAuthStateChanged,
+  signOut,
+} from "https://www.gstatic.com/firebasejs/11.0.1/firebase-auth.js";
 
-  let tasks = JSON.parse(localStorage.getItem('tasks')) || [];
+const firebaseConfig = {
+  apiKey: "AIzaSyA3o7I7NSz7_4C7qUOFirnIjot4_rW885o",
+  authDomain: "project-task-manager-6a4d6.firebaseapp.com",
+  projectId: "project-task-manager-6a4d6",
+  storageBucket: "project-task-manager-6a4d6.firebasestorage.app",
+  messagingSenderId: "797859086383",
+  appId: "1:797859086383:web:d84f87f51b6708540c86da",
+  measurementId: "G-XPQS6YQCCS",
+};
 
-  // ====================================================
-  // FIREBASE CONFIG
-  // ====================================================
-  const firebaseConfig = {
-    apiKey: "AIzaSyA3o7I7NSz7_4C7qUOFirnIjot4_rW885o",
-    authDomain: "project-task-manager-6a4d6.firebaseapp.com",
-    projectId: "project-task-manager-6a4d6",
-    storageBucket: "project-task-manager-6a4d6.appspot.com",
-    messagingSenderId: "797859086383",
-    appId: "1:797859086383:web:d84f87f51b6708540c86da",
-    measurementId: "G-XPQS6YQCCS"
-  };
+const app = initializeApp(firebaseConfig);
+const auth = getAuth(app);
 
-  if (typeof firebase === 'undefined') {
-    console.error("Firebase is not loaded. Make sure to include Firebase SDKs.");
+// -----------------------------
+// DOM Elements
+// -----------------------------
+const logoutBtn = document.getElementById("logout-btn");
+const greetUser = document.getElementById("greet-user");
+const taskSummary = document.getElementById("task-summary");
+const iaPanel = document.getElementById("ia-panel");
+const iaForm = document.getElementById("ia-form");
+const iaChat = document.getElementById("ia-chat");
+const iaInput = document.getElementById("ia-input");
+const iaToggle = document.getElementById("ia-toggle");
+const closeIa = document.getElementById("close-ia");
+
+const filterSelect = document.getElementById("filter-tasks");
+const searchInput = document.getElementById("search-tasks");
+const addQuickBtn = document.getElementById("add-quick-task");
+const taskList = document.getElementById("task-list");
+
+let tasks = JSON.parse(localStorage.getItem("tasks")) || [];
+
+// -----------------------------
+// Authentication
+// -----------------------------
+onAuthStateChanged(auth, (user) => {
+  if (user) {
+    greetUser.textContent = `👋 Welcome, ${user.email.split("@")[0]}!`;
+    renderTasks();
+  } else {
+    window.location.href = "index.html";
+  }
+});
+
+logoutBtn?.addEventListener("click", async () => {
+  await signOut(auth);
+  window.location.href = "index.html";
+});
+
+// -----------------------------
+// Task management
+// -----------------------------
+function saveTasks() {
+  localStorage.setItem("tasks", JSON.stringify(tasks));
+  renderTasks();
+}
+
+function renderTasks() {
+  const filter = filterSelect?.value || "all";
+  const searchTerm = (searchInput?.value || "").toLowerCase();
+
+  taskList.innerHTML = "";
+
+  const filtered = tasks.filter((t) => {
+    const matchSearch = t.title.toLowerCase().includes(searchTerm);
+    const matchFilter =
+      filter === "all" ||
+      (filter === "pending" && !t.completed) ||
+      (filter === "completed" && t.completed);
+    return matchSearch && matchFilter;
+  });
+
+  if (filtered.length === 0) {
+    taskList.innerHTML = "<p class='empty-msg'>No tasks found.</p>";
+    taskSummary.textContent = "No tasks pending!";
     return;
   }
 
-  firebase.initializeApp(firebaseConfig);
-  const auth = firebase.auth();
-  const db = firebase.firestore();
-
-  // ====================================================
-  // AUTHENTICATION
-  // ====================================================
-  if (showRegister) {
-    showRegister.addEventListener("click", (e) => {
-      e.preventDefault();
-      loginForm?.classList.add("hidden");
-      registerForm?.classList.remove("hidden");
-      showRegister.classList.add("hidden");
-      showLogin?.classList.remove("hidden");
-    });
-  }
-
-  if (showLogin) {
-    showLogin.addEventListener("click", (e) => {
-      e.preventDefault();
-      loginForm?.classList.remove("hidden");
-      registerForm?.classList.add("hidden");
-      showRegister?.classList.remove("hidden");
-      showLogin.classList.add("hidden");
-    });
-  }
-
-  if (registerForm) {
-    registerForm.addEventListener("submit", (e) => {
-      e.preventDefault();
-      const email = document.getElementById("reg-email")?.value;
-      const password = document.getElementById("reg-password")?.value;
-
-      auth.createUserWithEmailAndPassword(email, password)
-        .then(() => {
-          alert("✅ Account created successfully!");
-          registerForm.reset();
-          registerForm.classList.add("hidden");
-          loginForm.classList.remove("hidden");
-          showLogin.classList.add("hidden");
-          showRegister.classList.remove("hidden");
-        })
-        .catch(err => alert(`⚠️ ${err.message}`));
-    });
-  }
-
-  if (loginForm) {
-    loginForm.addEventListener("submit", (e) => {
-      e.preventDefault();
-      const email = document.getElementById("email")?.value;
-      const password = document.getElementById("password")?.value;
-
-      auth.signInWithEmailAndPassword(email, password)
-        .then(() => {
-          loginForm.reset();
-        })
-        .catch(err => alert(`⚠️ ${err.message}`));
-    });
-  }
-
-  if (logoutBtn) {
-    logoutBtn.addEventListener("click", () => auth.signOut());
-  }
-
-  // ====================================================
-  // AUTH STATE CHANGE
-  // ====================================================
-  auth.onAuthStateChanged((user) => {
-    if (user) {
-      showDashboard(user);
-      loadTasksFromFirestore();
-    } else {
-      showLoginScreen();
-      tasks = [];
-      renderTasks();
-    }
+  filtered.forEach((task, i) => {
+    const div = document.createElement("div");
+    div.classList.add("task-card");
+    div.innerHTML = `
+      <input type="checkbox" ${task.completed ? "checked" : ""} data-index="${i}">
+      <span class="${task.completed ? "done" : ""}">${task.title}</span>
+      <button data-index="${i}" class="delete-btn">🗑️</button>
+    `;
+    taskList.appendChild(div);
   });
 
-  function showDashboard(user) {
-    authSection?.classList.add("hidden");
-    taskSection?.classList.remove("hidden");
-    logoutBtn?.classList.remove("hidden");
-    if (userEmail) userEmail.textContent = user.email;
-  }
+  const pending = tasks.filter((t) => !t.completed).length;
+  taskSummary.textContent = `You have ${pending} pending task${pending === 1 ? "" : "s"}.`;
+}
 
-  function showLoginScreen() {
-    authSection?.classList.remove("hidden");
-    taskSection?.classList.add("hidden");
-    logoutBtn?.classList.add("hidden");
-    if (userEmail) userEmail.textContent = "";
-  }
-
-  // ====================================================
-  // TASK MANAGEMENT
-  // ====================================================
-  if (form) {
-    form.addEventListener('submit', (e) => {
-      e.preventDefault();
-      const title = document.getElementById('title')?.value.trim();
-      const description = document.getElementById('description')?.value.trim();
-      const datetime = document.getElementById('datetime')?.value;
-
-      if (!title || !datetime) return;
-
-      const task = { id: Date.now(), title, description, datetime, completed: false };
-      tasks.push(task);
-      saveTasks();
-      renderTasks();
-      form.reset();
-    });
-  }
-
-  function saveTasks() {
-    localStorage.setItem('tasks', JSON.stringify(tasks));
-    saveTasksToFirestore();
-  }
-
-  function renderTasks() {
-    if (!taskList) return;
-    taskList.innerHTML = '';
-    tasks.sort((a, b) => new Date(a.datetime) - new Date(b.datetime));
-    tasks.forEach(addTaskToDOM);
-  }
-
-  function addTaskToDOM(task) {
-    const li = document.createElement('li');
-    li.classList.toggle('completed', task.completed);
-    const remaining = getTimeRemaining(task.datetime);
-    li.innerHTML = `
-      <strong>${task.title}</strong>
-      ${task.description ? `<span>${task.description}</span>` : ''}
-      <span class="time-remaining">⏰ ${new Date(task.datetime).toLocaleString()} (${remaining})</span>
-      <div class="task-actions">
-        <button class="complete-btn" onclick="toggleComplete(${task.id})">${task.completed ? '↩️ Undo' : '✅ Complete'}</button>
-        <button class="edit-btn" onclick="editTask(${task.id})">✏️ Edit</button>
-        <button class="remove-btn" onclick="removeTask(${task.id})">🗑️ Remove</button>
-      </div>
-    `;
-    taskList.appendChild(li);
-  }
-
-  function getTimeRemaining(datetime) {
-    const now = new Date();
-    const target = new Date(datetime);
-    const diff = target - now;
-    if (diff <= 0) return 'Expired';
-    const hours = Math.floor(diff / (1000 * 60 * 60));
-    const mins = Math.floor((diff % (1000 * 60 * 60)) / (1000 * 60));
-    return `${hours}h ${mins}m remaining`;
-  }
-
-  window.toggleComplete = function(id) {
-    const task = tasks.find(t => t.id === id);
-    if (!task) return;
-    task.completed = !task.completed;
+taskList?.addEventListener("change", (e) => {
+  const index = e.target.dataset.index;
+  if (index !== undefined) {
+    tasks[index].completed = e.target.checked;
     saveTasks();
-    renderTasks();
   }
+});
 
-  window.editTask = function(id) {
-    const task = tasks.find(t => t.id === id);
-    if (!task) return;
-    const newTitle = prompt('Edit title:', task.title);
-    const newDesc = prompt('Edit description:', task.description);
-    if (newTitle !== null) task.title = newTitle;
-    if (newDesc !== null) task.description = newDesc;
+taskList?.addEventListener("click", (e) => {
+  if (e.target.classList.contains("delete-btn")) {
+    const index = e.target.dataset.index;
+    tasks.splice(index, 1);
     saveTasks();
-    renderTasks();
   }
+});
 
-  window.removeTask = function(id) {
-    tasks = tasks.filter(t => t.id !== id);
+filterSelect?.addEventListener("change", renderTasks);
+searchInput?.addEventListener("input", renderTasks);
+
+addQuickBtn?.addEventListener("click", () => {
+  const title = prompt("Enter a quick task:");
+  if (title) {
+    tasks.push({ title, completed: false, datetime: new Date().toISOString() });
     saveTasks();
-    renderTasks();
   }
-
-  if (clearAllBtn) {
-    clearAllBtn.addEventListener('click', () => {
-      if (confirm('Are you sure you want to delete all tasks?')) {
-        tasks = [];
-        saveTasks();
-        renderTasks();
-      }
-    });
-  }
-
-  // ====================================================
-  // FIRESTORE SYNC
-  // ====================================================
-  function saveTasksToFirestore() {
-    const user = auth.currentUser;
-    if (!user) return;
-    db.collection('users').doc(user.uid).set({ tasks })
-      .then(() => console.log('💾 Tasks synced'))
-      .catch(err => console.error(err));
-  }
-
-  function loadTasksFromFirestore() {
-    const user = auth.currentUser;
-    if (!user) return;
-    db.collection('users').doc(user.uid).get()
-      .then(doc => {
-        if (doc.exists && doc.data().tasks) {
-          tasks = doc.data().tasks;
-          renderTasks();
-        }
-      })
-      .catch(err => console.error(err));
-  }
+});
 
 // -----------------------------
 // AI ASSISTANT (ENGLISH VERSION)
