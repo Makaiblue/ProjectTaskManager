@@ -11,16 +11,6 @@ document.addEventListener("DOMContentLoaded", () => {
   const iaChat = document.getElementById('ia-chat');
   const iaForm = document.getElementById('ia-form');
   const iaInput = document.getElementById('ia-input');
-const showRegister = document.getElementById("show-register");
-if (showRegister) {
-  showRegister.addEventListener("click", (e) => {
-    e.preventDefault();
-    loginForm.classList.add("hidden");
-    registerForm.classList.remove("hidden");
-    showRegister.classList.add("hidden");
-    showLogin.classList.remove("hidden");
-  });
-}
 
   const loginForm = document.getElementById("login-form");
   const registerForm = document.getElementById("register-form");
@@ -46,7 +36,6 @@ if (showRegister) {
     measurementId: "G-XPQS6YQCCS"
   };
 
-  // Check if firebase is already loaded via script tag
   if (typeof firebase === 'undefined') {
     console.error("Firebase is not loaded. Make sure to include Firebase SDKs.");
     return;
@@ -59,23 +48,22 @@ if (showRegister) {
   // ====================================================
   // AUTHENTICATION
   // ====================================================
-
   if (showRegister) {
     showRegister.addEventListener("click", (e) => {
       e.preventDefault();
-      if (loginForm) loginForm.classList.add("hidden");
-      if (registerForm) registerForm.classList.remove("hidden");
+      loginForm?.classList.add("hidden");
+      registerForm?.classList.remove("hidden");
       showRegister.classList.add("hidden");
-      if (showLogin) showLogin.classList.remove("hidden");
+      showLogin?.classList.remove("hidden");
     });
   }
 
   if (showLogin) {
     showLogin.addEventListener("click", (e) => {
       e.preventDefault();
-      if (loginForm) loginForm.classList.remove("hidden");
-      if (registerForm) registerForm.classList.add("hidden");
-      if (showRegister) showRegister.classList.remove("hidden");
+      loginForm?.classList.remove("hidden");
+      registerForm?.classList.add("hidden");
+      showRegister?.classList.remove("hidden");
       showLogin.classList.add("hidden");
     });
   }
@@ -90,10 +78,10 @@ if (showRegister) {
         .then(() => {
           alert("✅ Account created successfully!");
           registerForm.reset();
-          if (registerForm) registerForm.classList.add("hidden");
-          if (loginForm) loginForm.classList.remove("hidden");
-          if (showLogin) showLogin.classList.add("hidden");
-          if (showRegister) showRegister.classList.remove("hidden");
+          registerForm.classList.add("hidden");
+          loginForm.classList.remove("hidden");
+          showLogin.classList.add("hidden");
+          showRegister.classList.remove("hidden");
         })
         .catch(err => alert(`⚠️ ${err.message}`));
     });
@@ -106,7 +94,9 @@ if (showRegister) {
       const password = document.getElementById("password")?.value;
 
       auth.signInWithEmailAndPassword(email, password)
-        .then(() => loginForm.reset())
+        .then(() => {
+          loginForm.reset();
+        })
         .catch(err => alert(`⚠️ ${err.message}`));
     });
   }
@@ -115,22 +105,33 @@ if (showRegister) {
     logoutBtn.addEventListener("click", () => auth.signOut());
   }
 
+  // ====================================================
+  // AUTH STATE CHANGE
+  // ====================================================
   auth.onAuthStateChanged((user) => {
     if (user) {
-      if (authSection) authSection.classList.add("hidden");
-      if (taskSection) taskSection.classList.remove("hidden");
-      if (logoutBtn) logoutBtn.classList.remove("hidden");
-      if (userEmail) userEmail.textContent = user.email;
+      showDashboard(user);
       loadTasksFromFirestore();
     } else {
-      if (authSection) authSection.classList.remove("hidden");
-      if (taskSection) taskSection.classList.add("hidden");
-      if (logoutBtn) logoutBtn.classList.add("hidden");
-      if (userEmail) userEmail.textContent = "";
+      showLoginScreen();
       tasks = [];
       renderTasks();
     }
   });
+
+  function showDashboard(user) {
+    authSection?.classList.add("hidden");
+    taskSection?.classList.remove("hidden");
+    logoutBtn?.classList.remove("hidden");
+    if (userEmail) userEmail.textContent = user.email;
+  }
+
+  function showLoginScreen() {
+    authSection?.classList.remove("hidden");
+    taskSection?.classList.add("hidden");
+    logoutBtn?.classList.add("hidden");
+    if (userEmail) userEmail.textContent = "";
+  }
 
   // ====================================================
   // TASK MANAGEMENT
@@ -165,9 +166,8 @@ if (showRegister) {
   }
 
   function addTaskToDOM(task) {
-    if (!taskList) return;
     const li = document.createElement('li');
-    if (task.completed) li.classList.add('completed');
+    li.classList.toggle('completed', task.completed);
     const remaining = getTimeRemaining(task.datetime);
     li.innerHTML = `
       <strong>${task.title}</strong>
@@ -254,8 +254,8 @@ if (showRegister) {
   // ====================================================
   // AI ASSISTANT
   // ====================================================
-  if (iaToggle) iaToggle.addEventListener('click', () => iaPanel?.classList.remove('hidden'));
-  if (closeIa) closeIa.addEventListener('click', () => iaPanel?.classList.add('hidden'));
+  iaToggle?.addEventListener('click', () => iaPanel?.classList.remove('hidden'));
+  closeIa?.addEventListener('click', () => iaPanel?.classList.add('hidden'));
 
   if (iaForm) {
     iaForm.addEventListener('submit', (e) => {
@@ -269,12 +269,11 @@ if (showRegister) {
   }
 
   function addMessage(text, sender = 'ia') {
-    if (!iaChat) return;
     const msg = document.createElement('div');
     msg.classList.add('ia-msg');
     if (sender === 'user') msg.classList.add('user');
     msg.textContent = text;
-    iaChat.appendChild(msg);
+    iaChat?.appendChild(msg);
     iaChat.scrollTop = iaChat.scrollHeight;
   }
 
