@@ -133,93 +133,75 @@ addQuickBtn?.addEventListener("click", () => {
   }
 });
 
-// -----------------------------
-// AI ASSISTANT (ENGLISH VERSION)
-// -----------------------------
-iaToggle?.addEventListener("click", () => iaPanel?.classList.remove("hidden"));
-closeIa?.addEventListener("click", () => iaPanel?.classList.add("hidden"));
+// ====================================================
+// AI ASSISTANT (Enhanced, LGPD-safe & friendly)
+// ====================================================
+if (iaToggle) iaToggle.addEventListener('click', () => iaPanel?.classList.remove('hidden'));
+if (closeIa) closeIa.addEventListener('click', () => iaPanel?.classList.add('hidden'));
 
 if (iaForm) {
-  iaForm.addEventListener("submit", (e) => {
+  iaForm.addEventListener('submit', (e) => {
     e.preventDefault();
     const question = iaInput?.value.trim();
     if (!question) return;
-    addMessage(question, "user");
-    iaInput.value = "";
-    setTimeout(() => generateIaResponse(question), 600);
+    addMessage(question, 'user');
+    iaInput.value = '';
+    setTimeout(() => generateIaResponse(question), 500);
   });
 }
 
-function addMessage(text, sender = "ia") {
-  const msg = document.createElement("div");
-  msg.classList.add("ia-msg", sender);
+// 💬 Render chat messages
+function addMessage(text, sender = 'ia') {
+  if (!iaChat) return;
+  const msg = document.createElement('div');
+  msg.classList.add('ia-msg');
+  if (sender === 'user') msg.classList.add('user');
   msg.textContent = text;
-  iaChat?.appendChild(msg);
+  iaChat.appendChild(msg);
   iaChat.scrollTop = iaChat.scrollHeight;
 }
 
+// 💡 Smarter AI response system (LGPD-safe)
 function generateIaResponse(question) {
   const lower = question.toLowerCase();
-  const pending = tasks.filter((t) => !t.completed);
-  const completed = tasks.filter((t) => t.completed);
-  const overdue = tasks.filter(
-    (t) => new Date(t.datetime) < new Date() && !t.completed
-  );
+  const pending = tasks.filter(t => !t.completed);
+  const expired = tasks.filter(t => new Date(t.datetime) < new Date());
+  const soon = tasks.filter(t => {
+    const diff = new Date(t.datetime) - new Date();
+    return diff > 0 && diff < 86400000;
+  });
 
   let response = "";
 
-  if (/(hello|hi|hey)/i.test(lower)) {
-    const greetings = [
-      "Hey there 👋 How’s your day going?",
-      "Hello! Ready to organize your tasks?",
-      "Hi! Let’s make some progress today 🚀",
-    ];
-    response = greetings[Math.floor(Math.random() * greetings.length)];
-  } else if (/(pending|incomplete)/i.test(lower)) {
-    response = pending.length
-      ? `You have ${pending.length} pending task${
-          pending.length === 1 ? "" : "s"
-        }. Need help with them?`
-      : "No pending tasks — nice job! 🎉";
-  } else if (/(completed|done|finished)/i.test(lower)) {
-    response = completed.length
-      ? `You’ve completed ${completed.length} task${
-          completed.length === 1 ? "" : "s"
-        }. Keep it up 💪`
-      : "You haven’t completed any tasks yet — let’s start small!";
-  } else if (/(overdue|late|missed)/i.test(lower)) {
-    response = overdue.length
-      ? `⚠️ You have ${overdue.length} overdue task${
-          overdue.length === 1 ? "" : "s"
-        }. Want to see them?`
-      : "No overdue tasks. Great time management ⏰";
-  } else if (/(today|now)/i.test(lower)) {
-    const todayTasks = tasks.filter((t) => {
-      const diff = new Date(t.datetime) - new Date();
-      return diff > 0 && diff < 86400000;
-    });
-    response = todayTasks.length
-      ? `Here’s what’s due today: ${todayTasks
-          .map((t) => "• " + t.title)
-          .join(", ")}`
-      : "No tasks for today — enjoy your day 🌞";
-  } else if (/(motivation|quote|inspire)/i.test(lower)) {
+  // Task-related questions
+  if (lower.includes('task') || lower.includes('todo') || lower.includes('work')) {
+    response = `📋 You currently have ${pending.length} pending tasks, and ${expired.length} are overdue.`;
+  } 
+  else if (lower.includes('today') || lower.includes('now')) {
+    if (soon.length > 0) {
+      response = `☀️ Here are your tasks for today:\n${soon.map(t => `• ${t.title}`).join('\n')}`;
+    } else {
+      response = "🎉 No tasks for today! You can take a small break or plan new goals.";
+    }
+  } 
+  else if (lower.includes('motivate') || lower.includes('inspire') || lower.includes('quote')) {
     const quotes = [
-      "💡 “Discipline beats motivation — every single day.”",
-      "🔥 “Dream big. Start small. Act now.”",
-      "🌱 “Each task done is a seed of success planted.”",
+      "💪 Keep going — every small step counts!",
+      "🚀 Productivity isn’t about doing more, it’s about focusing on what matters.",
+      "🌱 Progress, not perfection. You got this!",
+      "🔥 The best time to start was yesterday. The next best time is now!"
     ];
     response = quotes[Math.floor(Math.random() * quotes.length)];
-  } else if (/(add|create) task/i.test(lower)) {
-    response =
-      "Sure! Just type the task title and click ‘Add Task’. You can also use the quick add button ➕";
-  } else {
-    const fallback = [
-      "Hmm, I’m not sure I understood. Could you rephrase?",
-      "Sorry, can you clarify that for me?",
-      "I didn’t quite get that — do you mean your task list?",
-    ];
-    response = fallback[Math.floor(Math.random() * fallback.length)];
+  } 
+  else if (lower.includes('hello') || lower.includes('hi') || lower.includes('hey')) {
+    response = "👋 Hello there! How can I assist you with your tasks today?";
+  } 
+  else if (lower.includes('help') || lower.includes('guide')) {
+    response = "🧭 You can ask me things like:\n• 'Show my tasks for today'\n• 'Motivate me'\n• 'Summarize my pending work'";
+  } 
+  else {
+    // Generic LGPD-safe fallback
+    response = "🤖 I respect your privacy and don’t store any personal info. Could you tell me more about what you’d like to do?";
   }
 
   addMessage(response);
