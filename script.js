@@ -50,7 +50,6 @@ document.addEventListener("DOMContentLoaded", () => {
       e.preventDefault();
       loginForm.classList.add("hidden");
       registerForm.classList.remove("hidden");
-      showRegisterBtn.classList.add("hidden");
       showLoginBtn.classList.remove("hidden");
     });
   }
