@@ -243,7 +243,7 @@ document.addEventListener("DOMContentLoaded", () => {
   if (elements.taskList) {
     elements.taskList.addEventListener("click", (e) => {
       const btn = e.target.closest("button[data-action]");
-      if (!btn) return;
+      if (!btn) return;}
       
       const id = Number(btn.dataset.id);
       const action = btn.dataset.action;
