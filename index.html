@@ -1,84 +1,118 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
   <title>Project Task Manager</title>
-  <link rel="stylesheet" href="style.css">
+  <link rel="stylesheet" href="style.css" />
 </head>
 <body>
+  <main class="page">
 
-  <!-- ==============================
-       AUTHENTICATION SCREEN
-  ============================== -->
-  <div class="container" id="auth-section">
-    <header>
-      <!-- Logo C SVG -->
-      <svg class="app-logo" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100">
-        <circle cx="50" cy="50" r="45" fill="#0ea5e9"/>
-        <text x="50%" y="55%" font-size="50" text-anchor="middle" fill="white" font-family="Segoe UI">C</text>
-      </svg>
-      <h1>Project Task Manager</h1>
-    </header>
+    <!-- AUTH SECTION (Login <-> Register toggles) -->
+    <section id="auth-section" class="card auth-card">
+      <header class="auth-header">
+        <!-- logo C (inline SVG) -->
+        <svg class="app-logo" viewBox="0 0 64 64" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+          <defs>
+            <linearGradient id="lg1" x1="0" x2="1">
+              <stop offset="0" stop-color="#06B6D4"/>
+              <stop offset="1" stop-color="#2563EB"/>
+            </linearGradient>
+          </defs>
+          <rect width="64" height="64" rx="12" fill="url(#lg1)"/>
+          <g transform="translate(8,8)">
+            <rect x="6" y="2" width="30" height="38" rx="3" fill="#fff" opacity="0.95"/>
+            <rect x="14" y="0" width="14" height="4" rx="1" fill="#fff"/>
+            <line x1="10" y1="22" x2="14" y2="26" stroke="#0b1226" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+            <line x1="14" y1="26" x2="26" y2="14" stroke="#0b1226" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+          </g>
+        </svg>
 
-    <!-- LOGIN FORM -->
-    <form id="login-form">
-      <input type="email" id="email" placeholder="Email" required autocomplete="username">
-      <input type="password" id="password" placeholder="Password" required autocomplete="current-password">
-      <button type="submit">Login</button>
-    </form>
+        <h1 class="title">Project Task Manager</h1>
+      </header>
 
-    <!-- REGISTER FORM (hidden by default) -->
-    <form id="register-form" class="hidden">
-      <input type="email" id="reg-email" placeholder="Email" required autocomplete="username">
-      <input type="password" id="reg-password" placeholder="Password" required autocomplete="new-password">
-      <button type="submit">Create Account</button>
-    </form>
-
-    <!-- Toggle links -->
-    <div class="auth-links">
-      <a href="#" id="show-register">Create Account</a>
-      <a href="#" id="show-login" class="hidden">Back to Login</a>
-    </div>
-
-    <p id="auth-message"></p>
-  </div>
-
-  <!-- ==============================
-       DASHBOARD SCREEN
-  ============================== -->
-  <div class="container hidden" id="task-section">
-
-    <div class="dashboard-header">
-      <h2 id="user-email"></h2>
-      <button id="logout-btn" class="logout-btn">Logout</button>
-    </div>
-
-    <!-- TASK FORM -->
-    <form id="task-form">
-      <input type="text" id="title" placeholder="Task Title" required>
-      <textarea id="description" placeholder="Description (optional)"></textarea>
-      <input type="datetime-local" id="datetime" required>
-      <button type="submit">Add Task</button>
-    </form>
-
-    <ul id="task-list"></ul>
-    <button id="clear-all">Clear All Tasks</button>
-
-    <!-- AI PANEL -->
-    <button id="ia-toggle" class="ai-btn">Open AI Assistant</button>
-    <div id="ia-panel">
-      <div id="ia-chat"></div>
-      <form id="ia-form">
-        <input type="text" id="ia-input" placeholder="Ask something..." required>
-        <button type="submit">Send</button>
+      <!-- Login form -->
+      <form id="login-form" class="form">
+        <input id="email" type="email" placeholder="Email" required autocomplete="username" />
+        <input id="password" type="password" placeholder="Password" required autocomplete="current-password" />
+        <button type="submit" class="btn primary">Login</button>
       </form>
-      <button id="close-ia" class="ai-btn">Close Assistant</button>
-    </div>
 
-  </div>
+      <!-- Register form (hidden by default) -->
+      <form id="register-form" class="form hidden">
+        <input id="reg-email" type="email" placeholder="Email" required autocomplete="username" />
+        <input id="reg-password" type="password" placeholder="Password" required autocomplete="new-password" />
+        <button type="submit" class="btn primary">Create account</button>
+      </form>
 
-  <!-- Firebase SDKs -->
+      <div class="auth-footer">
+        <p id="auth-message" class="muted"></p>
+        <div class="auth-links">
+          <button id="show-register" class="link-btn">Create account</button>
+          <button id="show-login" class="link-btn hidden">Back to login</button>
+        </div>
+      </div>
+    </section>
+
+    <!-- APP / DASHBOARD SECTION (hidden until login) -->
+    <section id="app-section" class="card app-card hidden" aria-hidden="true">
+      <header class="dashboard-header">
+        <div>
+          <h2 id="greet-user">Welcome!</h2>
+          <p id="task-summary" class="muted">You have 0 pending tasks.</p>
+        </div>
+        <div class="header-actions">
+          <button id="ia-toggle" class="btn outline">Chat AI</button>
+          <button id="logout-btn" class="btn danger">Logout</button>
+        </div>
+      </header>
+
+      <!-- task form -->
+      <form id="task-form" class="form">
+        <input id="title" type="text" placeholder="Task title" required />
+        <textarea id="description" placeholder="Description (optional)"></textarea>
+        <input id="datetime" type="datetime-local" required />
+        <div class="row">
+          <button type="submit" class="btn primary">Add task</button>
+          <button id="add-quick" type="button" class="btn outline">Quick add</button>
+        </div>
+      </form>
+
+      <!-- controls: filter + search -->
+      <div class="controls">
+        <select id="filter-tasks" class="select">
+          <option value="all">All</option>
+          <option value="pending">Pending</option>
+          <option value="completed">Completed</option>
+        </select>
+        <input id="search-tasks" class="search" placeholder="Search tasks..." />
+      </div>
+
+      <!-- task list -->
+      <ul id="task-list" class="task-list" aria-live="polite"></ul>
+
+      <div class="footer-actions">
+        <button id="clear-all" class="btn outline">Clear all</button>
+      </div>
+
+      <!-- AI PANEL (slide-in) -->
+      <aside id="ia-panel" class="ia-panel hidden" aria-hidden="true">
+        <div class="ia-top">
+          <h3>AI Assistant</h3>
+          <button id="close-ia" class="btn small">Close</button>
+        </div>
+        <div id="ia-chat" class="ia-chat" role="log"></div>
+        <form id="ia-form" class="ia-form">
+          <input id="ia-input" type="text" placeholder="Ask me about your tasks..." autocomplete="off" />
+          <button type="submit" class="btn primary small">Send</button>
+        </form>
+      </aside>
+    </section>
+
+  </main>
+
+  <!-- script as module (firebase modular v11) -->
   <script type="module" src="script.js"></script>
 </body>
 </html>
