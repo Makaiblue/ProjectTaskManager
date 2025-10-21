@@ -113,11 +113,11 @@ document.addEventListener("DOMContentLoaded", () => {
   // ------------------------------
   // Register
   // ------------------------------
-  registerForm?.addEventListener("submit", async (e) => {
+  registerForm?.addEventListener("submit", async (e) =>{
     e.preventDefault();
     const email = document.getElementById("reg-email").value.trim();
     const password = document.getElementById("reg-password").value.trim();
-    if (!email || !password) return;
+    if (!email || !password) return;)
 
     try {
       await createUserWithEmailAndPassword(auth, email, password);
