@@ -7,15 +7,6 @@ const loginForm = document.getElementById('loginForm');
 const registerForm = document.getElementById('registerForm');
 const appContainer = document.querySelector('.app-container');
 
-// Get Firebase services from configuration
-const { auth, db } = windows.firebaseServices;
-
-/**
- * Initialize the application when DOM is loaded
- */
-document.addEventListener('DOMContentLoaded', function() {
-    initializeApp();
-});
 // Configuração do Firebase
 const firebaseConfig = {
   apiKey: "AIzaSyA3o7I7NSz7_4C7qUOFirnIjot4_rW885o",
@@ -27,123 +18,18 @@ const firebaseConfig = {
   measurementId: "G-XPQS6YQCCS"
 };
 
-
 // Inicializar Firebase
 firebase.initializeApp(firebaseConfig);
+const auth = firebase.auth();
 const db = firebase.firestore();
 
-// Verificar se há usuário logado
-firebase.auth().onAuthStateChanged((user) => {
-    if (user) {
-        console.log("Usuário logado:", user.email);
-        loadTasks();
-    } else {
-        console.log("Nenhum usuário logado");
-        window.location.href = "login.html";
-    }
-});
-
-// Função para carregar tarefas
-function loadTasks() {
-    const user = firebase.auth().currentUser;
-    if (!user) return;
-
-    const tasksList = document.getElementById('tasksList');
-    tasksList.innerHTML = '';
-
-    db.collection('tasks')
-        .where('userId', '==', user.uid)
-        .orderBy('createdAt', 'desc')
-        .onSnapshot((snapshot) => {
-            snapshot.docChanges().forEach((change) => {
-                if (change.type === 'added') {
-                    renderTask(change.doc);
-                }
-                if (change.type === 'removed') {
-                    const taskElement = document.getElementById(change.doc.id);
-                    if (taskElement) taskElement.remove();
-                }
-            });
-        });
-}
-
-// Função para adicionar tarefa
-function addTask() {
-    const taskInput = document.getElementById('taskInput');
-    const taskText = taskInput.value.trim();
-    
-    if (taskText === '') return;
-
-    const user = firebase.auth().currentUser;
-    if (!user) return;
-
-    db.collection('tasks').add({
-        text: taskText,
-        completed: false,
-        userId: user.uid,
-        createdAt: firebase.firestore.FieldValue.serverTimestamp()
-    });
-
-    taskInput.value = '';
-}
-
-// Função para renderizar tarefa
-function renderTask(doc) {
-    const task = doc.data();
-    const tasksList = document.getElementById('tasksList');
-    
-    const taskElement = document.createElement('div');
-    taskElement.className = `task ${task.completed ? 'completed' : ''}`;
-    taskElement.id = doc.id;
-    
-    taskElement.innerHTML = `
-        <span>${task.text}</span>
-        <div>
-            <button onclick="toggleTask('${doc.id}')">
-                ${task.completed ? 'Desfazer' : 'Concluir'}
-            </button>
-            <button onclick="deleteTask('${doc.id}')">Excluir</button>
-        </div>
-    `;
-    
-    tasksList.appendChild(taskElement);
-}
-
-// Função para alternar tarefa
-function toggleTask(id) {
-    const taskRef = db.collection('tasks').doc(id);
-    taskRef.get().then((doc) => {
-        if (doc.exists) {
-            taskRef.update({
-                completed: !doc.data().completed
-            });
-        }
-    });
-}
-
-// Função para excluir tarefa
-function deleteTask(id) {
-    db.collection('tasks').doc(id).delete();
-}
-
-// Função de logout
-function logout() {
-    firebase.auth().signOut().then(() => {
-        window.location.href = "login.html";
-    });
-}
-
-// Adicionar evento de Enter no input
+/**
+ * Initialize the application when DOM is loaded
+ */
 document.addEventListener('DOMContentLoaded', function() {
-    const taskInput = document.getElementById('taskInput');
-    if (taskInput) {
-        taskInput.addEventListener('keypress', function(e) {
-            if (e.key === 'Enter') {
-                addTask();
-            }
-        });
-    }
+    initializeApp();
 });
+
 /**
  * Main application initialization
  */
@@ -177,6 +63,16 @@ function setupEventListeners() {
     // Registration form submission
     if (registerForm) {
         registerForm.addEventListener('submit', handleRegister);
+    }
+
+    // Adicionar evento de Enter no input de tarefas
+    const taskInput = document.getElementById('taskInput');
+    if (taskInput) {
+        taskInput.addEventListener('keypress', function(e) {
+            if (e.key === 'Enter') {
+                handleAddTask(e);
+            }
+        });
     }
 }
 
@@ -304,21 +200,23 @@ function loadTasksFromLocalStorage() {
 
 /**
  * Add a new task to Firestore and local state
- * @param {Object} taskData - Task data (title, description, deadline)
- * @returns {Object} The created task
  */
-async function addTask(taskData) {
-    if (!currentUser) return;
+async function handleAddTask(e) {
+    if (e) e.preventDefault();
+    
+    const taskInput = document.getElementById('taskInput');
+    const taskText = taskInput.value.trim();
+    
+    if (taskText === '' || !currentUser) return;
 
     // Create task object with required fields
     const task = {
-        title: taskData.title,
-        description: taskData.description,
-        deadline: taskData.deadline,
+        text: taskText,
+        title: taskText, // Para compatibilidade
         completed: false,
         userId: currentUser.uid,
         createdAt: firebase.firestore.FieldValue.serverTimestamp(),
-        urgent: isTaskUrgent(taskData.deadline)
+        urgent: false
     };
 
     try {
@@ -331,6 +229,7 @@ async function addTask(taskData) {
         localStorage.setItem(`tasks_${currentUser.uid}`, JSON.stringify(tasks));
 
         renderTasks();
+        taskInput.value = '';
         return task;
     } catch (error) {
         console.error('Error adding task to Firestore:', error);
@@ -397,6 +296,22 @@ async function deleteTask(taskId) {
 }
 
 /**
+ * Toggle task completion status
+ * @param {string} taskId - ID of task to toggle
+ */
+function toggleTaskCompletion(taskId) {
+    const task = tasks.find(t => t.id === taskId);
+    if (task) {
+        updateTask(taskId, { completed: !task.completed });
+    }
+}
+
+// Função para alternar tarefa (compatibilidade)
+function toggleTask(id) {
+    toggleTaskCompletion(id);
+}
+
+/**
  * Check if a task is urgent based on deadline
  * @param {string} deadline - Task deadline string
  * @returns {boolean} True if task is urgent
@@ -416,30 +331,29 @@ function isTaskUrgent(deadline) {
  * Render tasks to the DOM
  */
 function renderTasks() {
-    const taskList = document.getElementById('taskList');
-    if (!taskList) return;
+    const tasksList = document.getElementById('tasksList');
+    if (!tasksList) return;
 
     if (tasks.length === 0) {
-        taskList.innerHTML = '<p class="no-tasks">No tasks found.</p>';
+        tasksList.innerHTML = '<p class="no-tasks">No tasks found.</p>';
         return;
     }
 
     // Generate HTML for each task
-    taskList.innerHTML = tasks.map(task => `
+    tasksList.innerHTML = tasks.map(task => `
         <div class="task-item ${task.completed ? 'completed' : ''} ${task.urgent ? 'urgent' : ''}">
             <div class="task-info">
-                <h4>${task.title}</h4>
-                <p>${task.description || 'No description'}</p>
+                <span class="task-text">${task.text || task.title}</span>
+                ${task.description ? `<p class="task-desc">${task.description}</p>` : ''}
                 <div class="task-meta">
-                    ${task.deadline ? `Due: ${new Date(task.deadline).toLocaleDateString('en-US')}` : 'No deadline'}
-                    ${task.urgent ? ' • ⚠️ Urgent' : ''}
+                    ${task.deadline ? `<span>Due: ${new Date(task.deadline).toLocaleDateString('en-US')}</span>` : ''}
+                    ${task.urgent ? '<span class="urgent-badge">⚠️ Urgent</span>' : ''}
                 </div>
             </div>
             <div class="task-actions">
                 <button class="btn-complete" onclick="toggleTaskCompletion('${task.id}')">
                     ${task.completed ? '↶' : '✓'}
                 </button>
-                <button class="btn-edit" onclick="editTask('${task.id}')">✏️</button>
                 <button class="btn-delete" onclick="deleteTask('${task.id}')">🗑️</button>
             </div>
         </div>
@@ -450,9 +364,10 @@ function renderTasks() {
  * Show the main application interface
  */
 function showApp() {
-    if (appContainer) {
+    const authContainer = document.querySelector('.auth-container');
+    if (appContainer && authContainer) {
         appContainer.style.display = 'block';
-        document.querySelector('.auth-container').style.display = 'none';
+        authContainer.style.display = 'none';
 
         // Update user information in UI
         const userEmailElement = document.getElementById('userEmail');
@@ -469,9 +384,10 @@ function showApp() {
  * Show authentication interface
  */
 function showAuth() {
-    if (appContainer) {
+    const authContainer = document.querySelector('.auth-container');
+    if (appContainer && authContainer) {
         appContainer.style.display = 'none';
-        document.querySelector('.auth-container').style.display = 'flex';
+        authContainer.style.display = 'flex';
     }
 }
 
@@ -504,56 +420,6 @@ function setupAppEventListeners() {
     const logoutBtn = document.getElementById('logoutBtn');
     if (logoutBtn) {
         logoutBtn.addEventListener('click', handleLogout);
-    }
-}
-
-/**
- * Handle adding a new task from the form
- * @param {Event} e - Form submit event
- */
-async function handleAddTask(e) {
-    e.preventDefault();
-    const title = document.getElementById('taskTitle').value;
-    const description = document.getElementById('taskDescription').value;
-    const deadline = document.getElementById('taskDeadline').value;
-
-    // Validate required fields
-    if (!title.trim()) {
-        alert('Please enter a task title.');
-        return;
-    }
-
-    await addTask({ title, description, deadline });
-
-    // Reset form
-    e.target.reset();
-}
-
-/**
- * Toggle task completion status
- * @param {string} taskId - ID of task to toggle
- */
-function toggleTaskCompletion(taskId) {
-    const task = tasks.find(t => t.id === taskId);
-    if (task) {
-        updateTask(taskId, { completed: !task.completed });
-    }
-}
-
-/**
- * Edit a task (populates form with task data)
- * @param {string} taskId - ID of task to edit
- */
-function editTask(taskId) {
-    const task = tasks.find(t => t.id === taskId);
-    if (task) {
-        // Populate form with task data
-        document.getElementById('taskTitle').value = task.title;
-        document.getElementById('taskDescription').value = task.description || '';
-        document.getElementById('taskDeadline').value = task.deadline || '';
-
-        // Remove the current task (will be re-added when form is submitted)
-        deleteTask(taskId);
     }
 }
 
@@ -609,7 +475,7 @@ class AIAssistant {
         let response = `⚠️ You have ${urgentTasks.length} urgent task(s):\n\n`;
         urgentTasks.forEach(task => {
             const deadline = task.deadline ? new Date(task.deadline).toLocaleDateString('en-US') : 'No deadline';
-            response += `• ${task.title} (Due: ${deadline})\n`;
+            response += `• ${task.title || task.text} (Due: ${deadline})\n`;
         });
 
         return response;
@@ -651,7 +517,7 @@ class AIAssistant {
 
         let response = `📅 You have ${todayTasks.length} task(s) for today:\n\n`;
         todayTasks.forEach(task => {
-            response += `• ${task.title}\n`;
+            response += `• ${task.title || task.text}\n`;
         });
 
         return response;
@@ -676,7 +542,7 @@ class AIAssistant {
         if (urgentTasks.length > 0) {
             response += "⚡ MAXIMUM PRIORITY (do now):\n";
             urgentTasks.slice(0, 3).forEach(task => {
-                response += `• ${task.title}\n`;
+                response += `• ${task.title || task.text}\n`;
             });
             response += "\n";
         }
@@ -684,7 +550,7 @@ class AIAssistant {
         if (nonUrgentTasks.length > 0) {
             response += "📝 FOR THIS WEEK:\n";
             nonUrgentTasks.slice(0, 3).forEach(task => {
-                response += `• ${task.title}\n`;
+                response += `• ${task.title || task.text}\n`;
             });
         }
 
