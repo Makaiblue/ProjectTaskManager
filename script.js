@@ -16,7 +16,134 @@ const { auth, db } = windows.firebaseServices;
 document.addEventListener('DOMContentLoaded', function() {
     initializeApp();
 });
+// Configuração do Firebase
+const firebaseConfig = {
+  apiKey: "AIzaSyA3o7I7NSz7_4C7qUOFirnIjot4_rW885o",
+  authDomain: "project-task-manager-6a4d6.firebaseapp.com",
+  projectId: "project-task-manager-6a4d6",
+  storageBucket: "project-task-manager-6a4d6.firebasestorage.app",
+  messagingSenderId: "797859086383",
+  appId: "1:797859086383:web:d84f87f51b6708540c86da",
+  measurementId: "G-XPQS6YQCCS"
+};
 
+
+// Inicializar Firebase
+firebase.initializeApp(firebaseConfig);
+const db = firebase.firestore();
+
+// Verificar se há usuário logado
+firebase.auth().onAuthStateChanged((user) => {
+    if (user) {
+        console.log("Usuário logado:", user.email);
+        loadTasks();
+    } else {
+        console.log("Nenhum usuário logado");
+        window.location.href = "login.html";
+    }
+});
+
+// Função para carregar tarefas
+function loadTasks() {
+    const user = firebase.auth().currentUser;
+    if (!user) return;
+
+    const tasksList = document.getElementById('tasksList');
+    tasksList.innerHTML = '';
+
+    db.collection('tasks')
+        .where('userId', '==', user.uid)
+        .orderBy('createdAt', 'desc')
+        .onSnapshot((snapshot) => {
+            snapshot.docChanges().forEach((change) => {
+                if (change.type === 'added') {
+                    renderTask(change.doc);
+                }
+                if (change.type === 'removed') {
+                    const taskElement = document.getElementById(change.doc.id);
+                    if (taskElement) taskElement.remove();
+                }
+            });
+        });
+}
+
+// Função para adicionar tarefa
+function addTask() {
+    const taskInput = document.getElementById('taskInput');
+    const taskText = taskInput.value.trim();
+    
+    if (taskText === '') return;
+
+    const user = firebase.auth().currentUser;
+    if (!user) return;
+
+    db.collection('tasks').add({
+        text: taskText,
+        completed: false,
+        userId: user.uid,
+        createdAt: firebase.firestore.FieldValue.serverTimestamp()
+    });
+
+    taskInput.value = '';
+}
+
+// Função para renderizar tarefa
+function renderTask(doc) {
+    const task = doc.data();
+    const tasksList = document.getElementById('tasksList');
+    
+    const taskElement = document.createElement('div');
+    taskElement.className = `task ${task.completed ? 'completed' : ''}`;
+    taskElement.id = doc.id;
+    
+    taskElement.innerHTML = `
+        <span>${task.text}</span>
+        <div>
+            <button onclick="toggleTask('${doc.id}')">
+                ${task.completed ? 'Desfazer' : 'Concluir'}
+            </button>
+            <button onclick="deleteTask('${doc.id}')">Excluir</button>
+        </div>
+    `;
+    
+    tasksList.appendChild(taskElement);
+}
+
+// Função para alternar tarefa
+function toggleTask(id) {
+    const taskRef = db.collection('tasks').doc(id);
+    taskRef.get().then((doc) => {
+        if (doc.exists) {
+            taskRef.update({
+                completed: !doc.data().completed
+            });
+        }
+    });
+}
+
+// Função para excluir tarefa
+function deleteTask(id) {
+    db.collection('tasks').doc(id).delete();
+}
+
+// Função de logout
+function logout() {
+    firebase.auth().signOut().then(() => {
+        window.location.href = "login.html";
+    });
+}
+
+// Adicionar evento de Enter no input
+document.addEventListener('DOMContentLoaded', function() {
+    const taskInput = document.getElementById('taskInput');
+    if (taskInput) {
+        taskInput.addEventListener('keypress', function(e) {
+            if (e.key === 'Enter') {
+                addTask();
+            }
+        });
+    }
+});
 /**
  * Main application initialization
  */
