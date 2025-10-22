@@ -7,21 +7,8 @@ const loginForm = document.getElementById('loginForm');
 const registerForm = document.getElementById('registerForm');
 const appContainer = document.querySelector('.app-container');
 
-// Configuração do Firebase
-const firebaseConfig = {
-  apiKey: "AIzaSyA3o7I7NSz7_4C7qUOFirnIjot4_rW885o",
-  authDomain: "project-task-manager-6a4d6.firebaseapp.com",
-  projectId: "project-task-manager-6a4d6",
-  storageBucket: "project-task-manager-6a4d6.firebasestorage.app",
-  messagingSenderId: "797859086383",
-  appId: "1:797859086383:web:d84f87f51b6708540c86da",
-  measurementId: "G-XPQS6YQCCS"
-};
-
-// Inicializar Firebase
-firebase.initializeApp(firebaseConfig);
-const auth = firebase.auth();
-const db = firebase.firestore();
+// Get Firebase services from configuration
+const { auth, db } = window.firebaseServices;
 
 /**
  * Initialize the application when DOM is loaded
