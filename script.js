@@ -8,7 +8,7 @@ const registerForm = document.getElementById('registerForm');
 const appContainer = document.querySelector('.app-container');
 
 // Get Firebase services from configuration
-const { auth, db } = window.firebaseServices;
+const { auth, db } = windows.firebaseServices;
 
 /**
  * Initialize the application when DOM is loaded
