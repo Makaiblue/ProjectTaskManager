@@ -1,6 +1,6 @@
 // Firebase configuration with your project data
 const firebaseConfig = {
-    apiKey: "",AIzaSyA3o7I7NSz7_4C7qUOFirnIjot4_rW885o
+    apiKey: "AIzaSyA3o7I7NSz7_4C7qUOFirnIjot4_rW885o",
     authDomain: "project-task-manager-6a4d6.firebaseapp.com",
     projectId: "project-task-manager-6a4d6",
     storageBucket: "project-task-manager-6a4d6.firebasestorage.app",
