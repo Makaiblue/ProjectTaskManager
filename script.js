@@ -11,6 +11,8 @@ const firebaseConfig = {
 
 // Initialize Firebase
 firebase.initializeApp(firebaseConfig);
+
+// Firebase services - APENAS UMA DECLARAÇÃO
 const auth = firebase.auth();
 const db = firebase.firestore();
 
@@ -23,38 +25,6 @@ const loginForm = document.getElementById('loginForm');
 const registerForm = document.getElementById('registerForm');
 const appContainer = document.getElementById('appContainer');
 const authContainer = document.getElementById('authContainer');
-
-// ... (o resto do seu código original)
-// Wait for Firebase to be loaded
-function getFirebaseServices() {
-    if (window.firebaseServices) {
-        return window.firebaseServices;
-    } else {
-        // Fallback: initialize directly if firebase-config didn't load
-        const firebaseConfig = {
-            apiKey: "AIzaSyA3o7I7NSz7_4C7qUOFirnIjot4_rW885o",
-            authDomain: "project-task-manager-6a4d6.firebaseapp.com",
-            projectId: "project-task-manager-6a4d6",
-            storageBucket: "project-task-manager-6a4d6.firebasestorage.app",
-            messagingSenderId: "797859086383",
-            appId: "1:797859086383:web:d84f87f51b6708540c86da",
-            measurementId: "G-XPQS6YQCCS"
-        };
-        
-        if (!firebase.apps.length) {
-            firebase.initializeApp(firebaseConfig);
-        }
-        
-        return {
-            auth: firebase.auth(),
-            db: firebase.firestore(),
-            firebase: firebase
-        };
-    }
-}
-
-// Get Firebase services
-const { auth, db } = getFirebaseServices();
 
 /**
  * Initialize the application when DOM is loaded
@@ -72,14 +42,13 @@ function initializeApp() {
     
     // Monitor authentication state changes
     auth.onAuthStateChanged((user) => {
-        console.log('Auth state changed:', user);
+        console.log('Auth state changed:', user ? user.email : 'No user');
         if (user) {
-            // User is signed in
             currentUser = user;
             showApp();
             loadTasks();
         } else {
-            // User is signed out
+            currentUser = null;
             showAuth();
         }
     });
