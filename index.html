@@ -6,7 +6,7 @@
     <title>Project Task Manager</title>
     <!-- Use relative path for CSS -->
     <link rel="stylesheet" href="./style.css">
-    <link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>✅</text></svg>">
+    <link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22></text></svg>">
 </head>
 <body>
     <!-- Authentication Container -->
@@ -53,7 +53,7 @@
         <!-- Header -->
         <header class="app-header">
             <div class="header-content">
-                <h1>✅ Task Manager</h1>
+                <h1>Task Manager</h1>
                 <div class="user-info">
                     <span id="userEmail">user@email.com</span>
                     <button onclick="handleLogout()" class="btn-logout">Logout</button>
@@ -93,10 +93,10 @@
                 </div>
             </section>
 
-            <!-- AI Assistant Section -->
+        <!-- AI Assistant Section -->
             <section class="ai-section">
                 <div class="container">
-                    <h2>AI Assistant - Smart Reminders</h2>
+                    <h2>AI Assistant - Smart Analysis</h2>
                     <div class="ai-container">
                         <div class="quick-actions">
                             <button class="quick-action" data-action="urgent">📋 Urgent Tasks</button>
@@ -106,28 +106,19 @@
                             <button class="quick-action" data-action="instructions">🚀 AI Instructions</button>
                         </div>
                         
-                        <div class="chat-container">
-                            <div class="chat-messages" id="chatMessages">
+                        <div class="ai-response-container">
+                            <div class="ai-response" id="aiResponse">
                                 <div class="message ai">
-                                    <strong>AI Assistant:</strong> Hello! I'm your smart assistant. I can help with:<br>
-                                    • 📋 <strong>Urgent tasks</strong> - See what needs immediate attention<br>
-                                    • 📊 <strong>General summary</strong> - Complete status of your tasks<br>
-                                    • 📅 <strong>Today's tasks</strong> - What's due today<br>
-                                    • 💡 <strong>Smart suggestions</strong> - AI-based priorities<br>
-                                    • 🚀 <strong>Detailed instructions</strong> - How to solve your tasks<br><br>
-                                    How can I assist you today?
+                                    <strong>AI Assistant:</strong> Hello! I'm your smart assistant. Click any button to get insights about your tasks.
                                 </div>
                             </div>
-                            <form id="chatForm" class="chat-form">
-                                <input type="text" id="chatInput" placeholder="Ask about your tasks or request instructions...">
-                                <button type="submit">Send</button>
-                            </form>
                         </div>
                     </div>
                 </div>
             </section>
         </main>
     </div>
+    
       <!-- Firebase SDK -->
     <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-app.js"></script>
     <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-auth.js"></script>
