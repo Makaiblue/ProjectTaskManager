@@ -40,6 +40,9 @@ document.addEventListener('DOMContentLoaded', function() {
 function initializeApp() {
     console.log('Initializing app...');
     
+    // Set current date as default for task deadline
+    setDefaultTaskDate();
+    
     // Monitor authentication state changes
     auth.onAuthStateChanged((user) => {
         console.log('Auth state changed:', user ? user.email : 'No user');
@@ -55,6 +58,19 @@ function initializeApp() {
 
     // Set up event listeners
     setupEventListeners();
+}
+
+/**
+ * Set current date as default for task deadline input
+ */
+function setDefaultTaskDate() {
+    const taskDeadlineInput = document.getElementById('taskDeadline');
+    if (taskDeadlineInput) {
+        const today = new Date();
+        const formattedDate = today.toISOString().split('T')[0];
+        taskDeadlineInput.value = formattedDate;
+        taskDeadlineInput.min = formattedDate; // Prevent selecting past dates
+    }
 }
 
 /**
@@ -75,12 +91,6 @@ function setupEventListeners() {
     const taskForm = document.getElementById('taskForm');
     if (taskForm) {
         taskForm.addEventListener('submit', handleAddTask);
-    }
-
-    // AI chat form submission
-    const chatForm = document.getElementById('chatForm');
-    if (chatForm) {
-        chatForm.addEventListener('submit', handleAIChat);
     }
 
     // Quick action buttons
@@ -225,6 +235,8 @@ async function handleAddTask(e) {
 
     await addTask({ title, description, deadline });
     e.target.reset();
+    // Reset to current date after adding task
+    setDefaultTaskDate();
 }
 
 /**
@@ -397,30 +409,6 @@ class AIAssistant {
             'priority': this.getPrioritySuggestions.bind(this),
             'instructions': this.getTaskInstructions.bind(this)
         };
-    }
-
-    processMessage(message) {
-        const lowerMessage = message.toLowerCase();
-
-        if (lowerMessage.includes('urgent') || lowerMessage.includes('priority')) {
-            return this.responses.urgent();
-        } else if (lowerMessage.includes('summary')) {
-            return this.responses.summary();
-        } else if (lowerMessage.includes('today')) {
-            return this.responses.today();
-        } else if (lowerMessage.includes('suggestion') || lowerMessage.includes('tip')) {
-            return this.responses.priority();
-        } else if (lowerMessage.includes('instruction') || lowerMessage.includes('how to') || lowerMessage.includes('help')) {
-            return this.responses.instructions();
-        } else {
-            return "🤖 <strong>AI Assistant:</strong> I can help you with:\n\n" +
-                   "• 📋 <strong>Urgent tasks</strong> - See what needs immediate attention\n" +
-                   "• 📊 <strong>General summary</strong> - Complete status of your tasks\n" +
-                   "• 📅 <strong>Today's tasks</strong> - What's due today\n" +
-                   "• 💡 <strong>Smart suggestions</strong> - AI-based priorities\n" +
-                   "• 🚀 <strong>Detailed instructions</strong> - How to solve your tasks\n\n" +
-                   "How can I assist you today?";
-        }
     }
 
     getUrgentTasks() {
@@ -622,53 +610,26 @@ class AIAssistant {
 const aiAssistant = new AIAssistant();
 
 /**
- * Handle AI chat messages
- */
-function handleAIChat(e) {
-    e.preventDefault();
-    const input = document.getElementById('chatInput');
-    const message = input.value.trim();
-
-    if (!message) return;
-
-    addChatMessage(message, 'user');
-    const response = aiAssistant.processMessage(message);
-    
-    // Simulate typing delay for better UX
-    setTimeout(() => {
-        addChatMessage(response, 'ai');
-    }, 500);
-
-    input.value = '';
-}
-
-/**
  * Handle quick action buttons
  */
 function handleQuickAction(action) {
-    const responses = {
-        'urgent': 'What are my urgent tasks?',
-        'summary': 'Give me a complete summary of my tasks',
-        'today': 'What tasks do I have for today?',
-        'priority': 'What are your smart priority suggestions?',
-        'instructions': 'Give me detailed AI instructions for my tasks'
-    };
-
-    const message = responses[action];
-    if (message) {
-        document.getElementById('chatInput').value = message;
-        handleAIChat(new Event('submit'));
-    }
+    const response = aiAssistant.responses[action]();
+    displayAIResponse(response);
 }
 
 /**
- * Add a message to the chat interface
+ * Display AI response in the response container
  */
-function addChatMessage(message, sender) {
-    const chatMessages = document.getElementById('chatMessages');
+function displayAIResponse(response) {
+    const aiResponseContainer = document.getElementById('aiResponse');
     const messageDiv = document.createElement('div');
-    messageDiv.className = `message ${sender}`;
-    messageDiv.innerHTML = message.replace(/\n/g, '<br>');
-    chatMessages.appendChild(messageDiv);
-    chatMessages.scrollTop = chatMessages.scrollHeight;
+    messageDiv.className = 'message ai';
+    messageDiv.innerHTML = response.replace(/\n/g, '<br>');
+    
+    // Clear previous responses and add new one
+    aiResponseContainer.innerHTML = '';
+    aiResponseContainer.appendChild(messageDiv);
+    
+    // Scroll to bottom
+    aiResponseContainer.scrollTop = aiResponseContainer.scrollHeight;
 }
