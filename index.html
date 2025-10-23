@@ -1,37 +1,139 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="pt-BR">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Task Manager - Login</title>
-    <link rel="stylesheet" href="style.css">
-    <!-- Firebase SDK -->
-    <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-app-compat.js"></script>
-    <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-auth-compat.js"></script>
-    <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-firestore-compat.js"></script>
+    <title>Project Task Manager</title>
+    <link rel="stylesheet" href="styles.css">
+    <link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>✅</text></svg>">
 </head>
 <body>
-    <div class="container">
-        <div class="auth-container">
-            <div class="login-form">
+    <!-- Authentication Container -->
+    <div class="auth-container" id="authContainer">
+        <div class="auth-box">
+            <h1>Project Task Manager</h1>
+            <p>Organize suas tarefas de forma inteligente</p>
+            
+            <!-- Login Form -->
+            <form id="loginForm" class="auth-form">
                 <h2>Login</h2>
-                <form id="loginForm">
-                    <div class="form-group">
-                        <label for="email">Email:</label>
-                        <input type="email" id="email" required>
-                    </div>
-                    <div class="form-group">
-                        <label for="password">Password:</label>
-                        <input type="password" id="password" required>
-                    </div>
-                    <button type="submit" class="btn-primary">Sign In</button>
-                </form>
-                <p>Don't have an account? <a href="register.html">Register here</a></p>
+                <div class="form-group">
+                    <input type="email" id="email" placeholder="Seu email" required>
+                </div>
+                <div class="form-group">
+                    <input type="password" id="password" placeholder="Sua senha" required>
+                </div>
+                <button type="submit" class="btn-primary">Entrar</button>
                 <div id="authMessage" class="message"></div>
-            </div>
+                <p class="auth-switch">Não tem conta? <a href="#" onclick="showRegister()">Cadastre-se</a></p>
+            </form>
+
+            <!-- Register Form -->
+            <form id="registerForm" class="auth-form" style="display: none;">
+                <h2>Cadastro</h2>
+                <div class="form-group">
+                    <input type="email" id="regEmail" placeholder="Seu email" required>
+                </div>
+                <div class="form-group">
+                    <input type="password" id="regPassword" placeholder="Sua senha" required minlength="6">
+                </div>
+                <div class="form-group">
+                    <input type="password" id="confirmPassword" placeholder="Confirme sua senha" required>
+                </div>
+                <button type="submit" class="btn-primary">Criar Conta</button>
+                <div id="regMessage" class="message"></div>
+                <p class="auth-switch">Já tem conta? <a href="#" onclick="showLogin()">Faça login</a></p>
+            </form>
         </div>
     </div>
 
+    <!-- Main Application Container -->
+    <div class="app-container" id="appContainer" style="display: none;">
+        <!-- Header -->
+        <header class="app-header">
+            <div class="header-content">
+                <h1>✅ Task Manager</h1>
+                <div class="user-info">
+                    <span id="userEmail">usuário@email.com</span>
+                    <button onclick="handleLogout()" class="btn-logout">Sair</button>
+                </div>
+            </div>
+        </header>
+
+        <!-- Main Content -->
+        <main class="main-content">
+            <!-- Task Input Section -->
+            <section class="task-input-section">
+                <div class="container">
+                    <h2>Adicionar Nova Tarefa</h2>
+                    <form id="taskForm" class="task-form">
+                        <div class="form-group">
+                            <input type="text" id="taskTitle" placeholder="Título da tarefa" required>
+                        </div>
+                        <div class="form-group">
+                            <textarea id="taskDescription" placeholder="Descrição (opcional)" rows="3"></textarea>
+                        </div>
+                        <div class="form-group">
+                            <label for="taskDeadline">Data de Vencimento:</label>
+                            <input type="date" id="taskDeadline">
+                        </div>
+                        <button type="submit" class="btn-add">Adicionar Tarefa</button>
+                    </form>
+                </div>
+            </section>
+
+            <!-- Tasks Section -->
+            <section class="tasks-section">
+                <div class="container">
+                    <h2>Suas Tarefas</h2>
+                    <div id="tasksList" class="tasks-list">
+                        <!-- Tasks will be rendered here -->
+                    </div>
+                </div>
+            </section>
+
+            <!-- AI Assistant Section -->
+            <section class="ai-section">
+                <div class="container">
+                    <h2>Assistente IA - Lembretes Inteligentes</h2>
+                    <div class="ai-container">
+                        <div class="quick-actions">
+                            <button class="quick-action" data-action="urgent">📋 Tarefas Urgentes</button>
+                            <button class="quick-action" data-action="summary">📊 Resumo Geral</button>
+                            <button class="quick-action" data-action="today">📅 Para Hoje</button>
+                            <button class="quick-action" data-action="priority">💡 Sugestões</button>
+                            <button class="quick-action" data-action="instructions">🚀 Instruções IA</button>
+                        </div>
+                        
+                        <div class="chat-container">
+                            <div class="chat-messages" id="chatMessages">
+                                <div class="message ai">
+                                    <strong>Assistente IA:</strong> Olá! Sou seu assistente inteligente. Posso ajudar com:<br>
+                                    • 📋 <strong>Tarefas urgentes</strong> - Veja o que precisa de atenção imediata<br>
+                                    • 📊 <strong>Resumo geral</strong> - Status completo das suas tarefas<br>
+                                    • 📅 <strong>Tarefas de hoje</strong> - O que vencer hoje<br>
+                                    • 💡 <strong>Sugestões inteligentes</strong> - Prioridades baseadas em IA<br>
+                                    • 🚀 <strong>Instruções detalhadas</strong> - Como resolver suas tarefas<br><br>
+                                    Como posso ajudá-lo hoje?
+                                </div>
+                            </div>
+                            <form id="chatForm" class="chat-form">
+                                <input type="text" id="chatInput" placeholder="Pergunte sobre suas tarefas ou peça instruções...">
+                                <button type="submit">Enviar</button>
+                            </form>
+                        </div>
+                    </div>
+                </div>
+            </section>
+        </main>
+    </div>
+
+    <!-- Firebase SDK -->
+    <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-app.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-auth.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-firestore.js"></script>
+    
+    <!-- App Scripts -->
     <script src="firebase-config.js"></script>
     <script src="script.js"></script>
 </body>
