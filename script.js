@@ -12,7 +12,7 @@ const firebaseConfig = {
 // Initialize Firebase
 firebase.initializeApp(firebaseConfig);
 
-// Firebase services - APENAS UMA DECLARAÇÃO
+// Firebase services - ONLY ONE DECLARATION
 const auth = firebase.auth();
 const db = firebase.firestore();
 
@@ -122,7 +122,7 @@ async function handleLogin(e) {
 
     try {
         await auth.signInWithEmailAndPassword(email, password);
-        messageDiv.textContent = 'Login realizado com sucesso!';
+        messageDiv.textContent = 'Login successful!';
         messageDiv.className = 'message success';
     } catch (error) {
         messageDiv.textContent = getAuthErrorMessage(error.code);
@@ -141,14 +141,14 @@ async function handleRegister(e) {
     const messageDiv = document.getElementById('regMessage');
 
     if (password !== confirmPassword) {
-        messageDiv.textContent = 'As senhas não coincidem!';
+        messageDiv.textContent = 'Passwords do not match!';
         messageDiv.className = 'message error';
         return;
     }
 
     try {
         await auth.createUserWithEmailAndPassword(email, password);
-        messageDiv.textContent = 'Conta criada com sucesso!';
+        messageDiv.textContent = 'Account created successfully!';
         messageDiv.className = 'message success';
     } catch (error) {
         messageDiv.textContent = getAuthErrorMessage(error.code);
@@ -161,13 +161,13 @@ async function handleRegister(e) {
  */
 function getAuthErrorMessage(errorCode) {
     const errorMessages = {
-        'auth/email-already-in-use': 'Este email já está em uso.',
-        'auth/invalid-email': 'Email inválido.',
-        'auth/weak-password': 'Senha muito fraca (mínimo 6 caracteres).',
-        'auth/user-not-found': 'Usuário não encontrado.',
-        'auth/wrong-password': 'Senha incorreta.'
+        'auth/email-already-in-use': 'This email is already in use.',
+        'auth/invalid-email': 'Invalid email address.',
+        'auth/weak-password': 'Password is too weak (minimum 6 characters).',
+        'auth/user-not-found': 'User not found.',
+        'auth/wrong-password': 'Incorrect password.'
     };
-    return errorMessages[errorCode] || 'Erro desconhecido. Tente novamente.';
+    return errorMessages[errorCode] || 'Unknown error. Please try again.';
 }
 
 /**
@@ -219,7 +219,7 @@ async function handleAddTask(e) {
     const deadline = document.getElementById('taskDeadline').value;
 
     if (!title.trim()) {
-        alert('Por favor, insira um título para a tarefa.');
+        alert('Please enter a task title.');
         return;
     }
 
@@ -251,7 +251,7 @@ async function addTask(taskData) {
         return task;
     } catch (error) {
         console.error('Error adding task:', error);
-        alert('Erro ao adicionar tarefa. Tente novamente.');
+        alert('Error adding task. Please try again.');
     }
 }
 
@@ -333,7 +333,7 @@ function renderTasks() {
     if (!tasksList) return;
 
     if (tasks.length === 0) {
-        tasksList.innerHTML = '<p class="no-tasks">Nenhuma tarefa encontrada. Adicione sua primeira tarefa!</p>';
+        tasksList.innerHTML = '<p class="no-tasks">No tasks found. Add your first task!</p>';
         return;
     }
 
@@ -341,18 +341,18 @@ function renderTasks() {
         <div class="task-item ${task.completed ? 'completed' : ''} ${task.urgent ? 'urgent' : ''}">
             <div class="task-info">
                 <h4>${task.title}</h4>
-                <p>${task.description || 'Sem descrição'}</p>
+                <p>${task.description || 'No description'}</p>
                 <div class="task-meta">
-                    ${task.deadline ? `Vence: ${new Date(task.deadline).toLocaleDateString('pt-BR')}` : 'Sem data de vencimento'}
-                    ${task.urgent ? ' • <span class="urgent-badge">⚠️ Urgente</span>' : ''}
+                    ${task.deadline ? `Due: ${new Date(task.deadline).toLocaleDateString('en-US')}` : 'No deadline'}
+                    ${task.urgent ? ' • <span class="urgent-badge">⚠️ Urgent</span>' : ''}
                 </div>
             </div>
             <div class="task-actions">
                 <button class="btn-complete" onclick="toggleTaskCompletion('${task.id}')">
-                    ${task.completed ? '↶ Desfazer' : '✓ Concluir'}
+                    ${task.completed ? '↶ Undo' : '✓ Complete'}
                 </button>
-                <button class="btn-edit" onclick="editTask('${task.id}')">✏️ Editar</button>
-                <button class="btn-delete" onclick="deleteTask('${task.id}')">🗑️ Excluir</button>
+                <button class="btn-edit" onclick="editTask('${task.id}')">✏️ Edit</button>
+                <button class="btn-delete" onclick="deleteTask('${task.id}')">🗑️ Delete</button>
             </div>
         </div>
     `).join('');
@@ -402,24 +402,24 @@ class AIAssistant {
     processMessage(message) {
         const lowerMessage = message.toLowerCase();
 
-        if (lowerMessage.includes('urgente') || lowerMessage.includes('prioridade')) {
+        if (lowerMessage.includes('urgent') || lowerMessage.includes('priority')) {
             return this.responses.urgent();
-        } else if (lowerMessage.includes('resumo') || lowerMessage.includes('sumário')) {
+        } else if (lowerMessage.includes('summary')) {
             return this.responses.summary();
-        } else if (lowerMessage.includes('hoje')) {
+        } else if (lowerMessage.includes('today')) {
             return this.responses.today();
-        } else if (lowerMessage.includes('sugest') || lowerMessage.includes('dica')) {
+        } else if (lowerMessage.includes('suggestion') || lowerMessage.includes('tip')) {
             return this.responses.priority();
-        } else if (lowerMessage.includes('instruç') || lowerMessage.includes('como fazer') || lowerMessage.includes('ajuda')) {
+        } else if (lowerMessage.includes('instruction') || lowerMessage.includes('how to') || lowerMessage.includes('help')) {
             return this.responses.instructions();
         } else {
-            return "🤖 <strong>Assistente IA:</strong> Posso ajudar você com:\n\n" +
-                   "• 📋 <strong>Tarefas urgentes</strong> - Veja o que precisa de atenção imediata\n" +
-                   "• 📊 <strong>Resumo geral</strong> - Status completo das suas tarefas\n" +
-                   "• 📅 <strong>Tarefas de hoje</strong> - O que vencer hoje\n" +
-                   "• 💡 <strong>Sugestões inteligentes</strong> - Prioridades baseadas em IA\n" +
-                   "• 🚀 <strong>Instruções detalhadas</strong> - Como resolver suas tarefas\n\n" +
-                   "Como posso ajudá-lo hoje?";
+            return "🤖 <strong>AI Assistant:</strong> I can help you with:\n\n" +
+                   "• 📋 <strong>Urgent tasks</strong> - See what needs immediate attention\n" +
+                   "• 📊 <strong>General summary</strong> - Complete status of your tasks\n" +
+                   "• 📅 <strong>Today's tasks</strong> - What's due today\n" +
+                   "• 💡 <strong>Smart suggestions</strong> - AI-based priorities\n" +
+                   "• 🚀 <strong>Detailed instructions</strong> - How to solve your tasks\n\n" +
+                   "How can I assist you today?";
         }
     }
 
@@ -427,18 +427,18 @@ class AIAssistant {
         const urgentTasks = tasks.filter(task => task.urgent && !task.completed);
 
         if (urgentTasks.length === 0) {
-            return "🎉 <strong>Ótimas notícias!</strong> Você não tem tarefas urgentes no momento. Continue com o bom trabalho!";
+            return "🎉 <strong>Great news!</strong> You don't have any urgent tasks at the moment. Keep up the good work!";
         }
 
-        let response = "⚠️ <strong>TAREFAS URGENTES - ATENÇÃO IMEDIATA</strong>\n\n";
+        let response = "⚠️ <strong>URGENT TASKS - IMMEDIATE ATTENTION</strong>\n\n";
         urgentTasks.forEach((task, index) => {
-            const deadline = task.deadline ? new Date(task.deadline).toLocaleDateString('pt-BR') : 'Sem prazo definido';
+            const deadline = task.deadline ? new Date(task.deadline).toLocaleDateString('en-US') : 'No deadline set';
             response += `${index + 1}. <strong>${task.title}</strong>\n`;
-            response += `   📅 <em>Vence: ${deadline}</em>\n`;
+            response += `   📅 <em>Due: ${deadline}</em>\n`;
             if (task.description) {
                 response += `   📝 ${task.description}\n`;
             }
-            response += `   🚨 <strong>Prioridade MÁXIMA</strong>\n\n`;
+            response += `   🚨 <strong>MAXIMUM PRIORITY</strong>\n\n`;
         });
 
         return response;
@@ -450,14 +450,14 @@ class AIAssistant {
         const pendingTasks = totalTasks - completedTasks;
         const urgentTasks = tasks.filter(task => task.urgent && !task.completed).length;
 
-        return "📊 <strong>RESUMO DAS SUAS TAREFAS</strong>\n\n" +
-               `• <strong>Total:</strong> ${totalTasks} tarefas\n` +
-               `• <strong>Concluídas:</strong> ${completedTasks}\n` +
-               `• <strong>Pendentes:</strong> ${pendingTasks}\n` +
-               `• <strong>Urgentes:</strong> ${urgentTasks}\n\n` +
+        return "📊 <strong>YOUR TASKS SUMMARY</strong>\n\n" +
+               `• <strong>Total:</strong> ${totalTasks} tasks\n` +
+               `• <strong>Completed:</strong> ${completedTasks}\n` +
+               `• <strong>Pending:</strong> ${pendingTasks}\n` +
+               `• <strong>Urgent:</strong> ${urgentTasks}\n\n` +
                `${pendingTasks === 0 ? 
-                 '🎉 <strong>Parabéns! Todas as tarefas estão concluídas!</strong>' : 
-                 '💪 <strong>Continue com o bom trabalho!</strong>'}`;
+                 '🎉 <strong>Congratulations! All tasks are completed!</strong>' : 
+                 '💪 <strong>Keep up the good work!</strong>'}`;
     }
 
     getTodayTasks() {
@@ -469,16 +469,16 @@ class AIAssistant {
         });
 
         if (todayTasks.length === 0) {
-            return "📅 <strong>HOJE</strong>\n\nNão há tarefas vencendo hoje. Ótimo trabalho!";
+            return "📅 <strong>TODAY</strong>\n\nNo tasks due today. Great work!";
         }
 
-        let response = `📅 <strong>TAREFAS PARA HOJE</strong> (${todayTasks.length} tarefas)\n\n`;
+        let response = `📅 <strong>TASKS FOR TODAY</strong> (${todayTasks.length} tasks)\n\n`;
         todayTasks.forEach((task, index) => {
             response += `${index + 1}. <strong>${task.title}</strong>\n`;
             if (task.description) {
                 response += `   📝 ${task.description}\n`;
             }
-            response += `   ⏰ <strong>Vence hoje!</strong>\n\n`;
+            response += `   ⏰ <strong>Due today!</strong>\n\n`;
         });
 
         return response;
@@ -488,17 +488,17 @@ class AIAssistant {
         const pendingTasks = tasks.filter(task => !task.completed);
 
         if (pendingTasks.length === 0) {
-            return "🎉 <strong>TODAS AS TAREFAS CONCLUÍDAS!</strong>\n\nQue tal adicionar novas metas ou projetos?";
+            return "🎉 <strong>ALL TASKS COMPLETED!</strong>\n\nHow about adding new goals or projects?";
         }
 
         const urgentTasks = pendingTasks.filter(task => task.urgent);
         const highPriority = pendingTasks.filter(task => !task.urgent && task.deadline);
         const normalPriority = pendingTasks.filter(task => !task.urgent && !task.deadline);
 
-        let response = "💡 <strong>SUGESTÕES DE PRIORIDADE - IA</strong>\n\n";
+        let response = "💡 <strong>PRIORITY SUGGESTIONS - AI</strong>\n\n";
 
         if (urgentTasks.length > 0) {
-            response += "🔴 <strong>PRIORIDADE MÁXIMA (Faça AGORA):</strong>\n";
+            response += "🔴 <strong>MAXIMUM PRIORITY (Do NOW):</strong>\n";
             urgentTasks.slice(0, 3).forEach(task => {
                 response += `• ${task.title}\n`;
             });
@@ -506,16 +506,16 @@ class AIAssistant {
         }
 
         if (highPriority.length > 0) {
-            response += "🟡 <strong>ALTA PRIORIDADE (Esta semana):</strong>\n";
+            response += "🟡 <strong>HIGH PRIORITY (This week):</strong>\n";
             highPriority.slice(0, 3).forEach(task => {
-                const deadline = new Date(task.deadline).toLocaleDateString('pt-BR');
-                response += `• ${task.title} (vence ${deadline})\n`;
+                const deadline = new Date(task.deadline).toLocaleDateString('en-US');
+                response += `• ${task.title} (due ${deadline})\n`;
             });
             response += "\n";
         }
 
         if (normalPriority.length > 0) {
-            response += "🟢 <strong>PRIORIDADE NORMAL (Quando possível):</strong>\n";
+            response += "🟢 <strong>NORMAL PRIORITY (When possible):</strong>\n";
             normalPriority.slice(0, 3).forEach(task => {
                 response += `• ${task.title}\n`;
             });
@@ -526,28 +526,28 @@ class AIAssistant {
 
     getTaskInstructions() {
         if (tasks.length === 0) {
-            return "🚀 <strong>INSTRUÇÕES IA</strong>\n\n" +
-                   "Você ainda não tem tarefas. Adicione algumas tarefas primeiro para que eu possa fornecer instruções específicas!";
+            return "🚀 <strong>AI INSTRUCTIONS</strong>\n\n" +
+                   "You don't have any tasks yet. Add some tasks first so I can provide specific instructions!";
         }
 
         const pendingTasks = tasks.filter(task => !task.completed);
         
         if (pendingTasks.length === 0) {
-            return "🎉 <strong>TODAS AS TAREFAS CONCLUÍDAS!</strong>\n\n" +
-                   "Excelente trabalho! Aqui estão algumas sugestões para próximos passos:\n\n" +
-                   "1. <strong>Revise tarefas concluídas</strong> - Aprenda com o que foi feito\n" +
-                   "2. <strong>Estabeleça novas metas</strong> - O que você quer alcançar?\n" +
-                   "3. <strong>Planeje projetos futuros</strong> - Pense a longo prazo\n" +
-                   "4. <strong>Aprimore processos</strong> - Como pode ser mais eficiente?";
+            return "🎉 <strong>ALL TASKS COMPLETED!</strong>\n\n" +
+                   "Excellent work! Here are some suggestions for next steps:\n\n" +
+                   "1. <strong>Review completed tasks</strong> - Learn from what was done\n" +
+                   "2. <strong>Set new goals</strong> - What do you want to achieve?\n" +
+                   "3. <strong>Plan future projects</strong> - Think long-term\n" +
+                   "4. <strong>Improve processes</strong> - How can you be more efficient?";
         }
 
-        let response = "🚀 <strong>INSTRUÇÕES IA - COMO RESOLVER SUAS TAREFAS</strong>\n\n";
+        let response = "🚀 <strong>AI INSTRUCTIONS - HOW TO SOLVE YOUR TASKS</strong>\n\n";
 
         // Get the most urgent task for detailed instructions
         const mostUrgent = pendingTasks.find(task => task.urgent) || pendingTasks[0];
         
         if (mostUrgent) {
-            response += `📋 <strong>TAREFA PRINCIPAL: ${mostUrgent.title}</strong>\n\n`;
+            response += `📋 <strong>MAIN TASK: ${mostUrgent.title}</strong>\n\n`;
             
             // Generate step-by-step instructions based on task content
             const steps = this.generateTaskSteps(mostUrgent);
@@ -557,60 +557,60 @@ class AIAssistant {
             response += "\n";
         }
 
-        response += "🔄 <strong>METODOLOGIA RECOMENDADA:</strong>\n";
-        response += "• <strong>Foco Pomodoro</strong> - 25min trabalho / 5min descanso\n";
-        response += "• <strong>Divide e conquista</strong> - Quebre em partes menores\n";
-        response += "• <strong>Primeiro o difícil</strong> - Resolva o mais complexo primeiro\n";
-        response += "• <strong>Revisão constante</strong> - Ajuste o plano quando necessário\n\n";
+        response += "🔄 <strong>RECOMMENDED METHODOLOGY:</strong>\n";
+        response += "• <strong>Pomodoro focus</strong> - 25min work / 5min break\n";
+        response += "• <strong>Divide and conquer</strong> - Break into smaller parts\n";
+        response += "• <strong>First the difficult</strong> - Solve the most complex first\n";
+        response += "• <strong>Constant review</strong> - Adjust the plan when necessary\n\n";
         
-        response += "💪 <strong>Você consegue! Comece agora e veja o progresso.</strong>";
+        response += "💪 <strong>You can do it! Start now and see the progress.</strong>";
 
         return response;
     }
 
     generateTaskSteps(task) {
         const commonSteps = [
-            "Defina claramente o objetivo final desta tarefa",
-            "Identifique os recursos necessários para concluir",
-            "Estabeleça mini-metas para acompanhar o progresso",
-            "Reserve tempo específico para trabalhar nesta tarefa",
-            "Elimine distrações durante o período de trabalho",
-            "Revise o progresso ao final de cada sessão",
-            "Celebre as pequenas vitórias no caminho"
+            "Clearly define the final objective of this task",
+            "Identify the resources needed to complete it",
+            "Establish mini-goals to track progress",
+            "Set aside specific time to work on this task",
+            "Eliminate distractions during work periods",
+            "Review progress at the end of each session",
+            "Celebrate small victories along the way"
         ];
 
         // Add context-specific steps based on task content
         const title = task.title.toLowerCase();
         
-        if (title.includes('estudar') || title.includes('aprender') || title.includes('curso')) {
+        if (title.includes('study') || title.includes('learn') || title.includes('course')) {
             return [
-                "Separe o material de estudo em tópicos menores",
-                "Estabeleça metas de aprendizado realistas",
-                "Use a técnica de repetição espaçada para memorização",
-                "Pratique com exercícios e exemplos práticos",
-                "Faça resumos e anotações para fixar o conteúdo",
-                "Ensine o que aprendeu para solidificar o conhecimento",
-                "Revise periodicamente para manter o conhecimento fresco"
+                "Separate study material into smaller topics",
+                "Set realistic learning goals",
+                "Use spaced repetition technique for memorization",
+                "Practice with exercises and practical examples",
+                "Make summaries and notes to solidify content",
+                "Teach what you learned to reinforce knowledge",
+                "Review periodically to keep knowledge fresh"
             ];
-        } else if (title.includes('projeto') || title.includes('desenvolver') || title.includes('criar')) {
+        } else if (title.includes('project') || title.includes('develop') || title.includes('create')) {
             return [
-                "Defina o escopo e requisitos do projeto",
-                "Crie um cronograma com marcos importantes",
-                "Identifique as dependências e riscos",
-                "Divida o projeto em fases ou módulos",
-                "Estabeleça critérios de qualidade e teste",
-                "Documente o progresso e decisões importantes",
-                "Planeje a entrega e implementação final"
+                "Define the project scope and requirements",
+                "Create a schedule with important milestones",
+                "Identify dependencies and risks",
+                "Divide the project into phases or modules",
+                "Establish quality criteria and testing",
+                "Document progress and important decisions",
+                "Plan the final delivery and implementation"
             ];
-        } else if (title.includes('reunião') || title.includes('apresentação') || title.includes('relatório')) {
+        } else if (title.includes('meeting') || title.includes('presentation') || title.includes('report')) {
             return [
-                "Defina o objetivo e agenda da reunião/apresentação",
-                "Prepare o material necessário com antecedência",
-                "Identifique os participantes e suas expectativas",
-                "Estabeleça os tópicos principais a serem cobertos",
-                "Prepare exemplos ou dados de apoio",
-                "Antecipe possíveis perguntas e objeções",
-                "Planeje os próximos passos e ações"
+                "Define the meeting/presentation objective and agenda",
+                "Prepare necessary material in advance",
+                "Identify participants and their expectations",
+                "Establish the main topics to be covered",
+                "Prepare supporting examples or data",
+                "Anticipate possible questions and objections",
+                "Plan next steps and actions"
             ];
         }
 
@@ -647,11 +647,11 @@ function handleAIChat(e) {
  */
 function handleQuickAction(action) {
     const responses = {
-        'urgent': 'Quais são minhas tarefas urgentes?',
-        'summary': 'Me dê um resumo completo das minhas tarefas',
-        'today': 'Quais tarefas tenho para hoje?',
-        'priority': 'Quais são suas sugestões de prioridade inteligentes?',
-        'instructions': 'Me dê instruções detalhadas de IA para minhas tarefas'
+        'urgent': 'What are my urgent tasks?',
+        'summary': 'Give me a complete summary of my tasks',
+        'today': 'What tasks do I have for today?',
+        'priority': 'What are your smart priority suggestions?',
+        'instructions': 'Give me detailed AI instructions for my tasks'
     };
 
     const message = responses[action];
