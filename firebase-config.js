@@ -1,14 +1,7 @@
-// Firebase configuration with your project data
-const firebaseConfig = {
-  apiKey: "AIzaSyA3o7I7NSz7_4C7qUOFirnIjot4_rW885o",
-  authDomain: "project-task-manager-6a4d6.firebaseapp.com",
-  projectId: "project-task-manager-6a4d6",
-  storageBucket: "project-task-manager-6a4d6.firebasestorage.app",
-  messagingSenderId: "797859086383",
-  appId: "1:797859086383:web:d84f87f51b6708540c86da",
-  measurementId: "G-XPQS6YQCCS"
-};
-
+<script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-app.js"></script>
+<script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-auth.js"></script>
+<script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-firestore.js"></script>
+<script src="script.js"></script>
 
 // Initialize Firebase
 firebase.initializeApp(firebaseConfig);
